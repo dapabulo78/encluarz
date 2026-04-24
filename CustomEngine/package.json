@@ -1,0 +1,11 @@
+{
+  "name": "encluarz-custom-engine",
+  "version": "1.0.0",
+  "description": "Custom multi-layer Lua obfuscation engine for Encluarz",
+  "main": "engine.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "author": "encluarz",
+  "license": "MIT"
+}

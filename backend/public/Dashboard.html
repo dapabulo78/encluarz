@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RBX.Loader — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #080b10;
+    --surface: #0d1117;
+    --border:  #1a2332;
+    --border2: #243447;
+    --accent:  #00e5ff;
+    --green:   #39ff85;
+    --red:     #ff3c5a;
+    --yellow:  #ffd93d;
+    --text:    #c9d6e3;
+    --muted:   #4a6278;
+    --mono:    'Share Tech Mono', monospace;
+    --sans:    'Rajdhani', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 1rem;
+    color: #fff;
+    letter-spacing: 2px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .live-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--green);
+    border: 1px solid rgba(57,255,133,0.3);
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: rgba(57,255,133,0.05);
+    letter-spacing: 2px;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+  /* ── STAT GRID ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent-color, var(--accent));
+    opacity: 0.7;
+  }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 1.8rem;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+    transition: all 0.4s;
+  }
+
+  .stat-value.updating { color: var(--accent); }
+
+  .stat-sub {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  /* ── RATE LIMIT INFO ── */
+  .section-title {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .info-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+  }
+
+  .info-card-title {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 0.8rem;
+  }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(26,35,50,0.8);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+
+  .info-key { color: var(--muted); }
+  .info-val { color: var(--text); }
+  .info-val.ok   { color: var(--green); }
+  .info-val.warn { color: var(--yellow); }
+  .info-val.bad  { color: var(--red); }
+
+  /* ── ACTIVITY LOG ── */
+  .log-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1rem;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .log-body {
+    padding: 0.75rem 1rem;
+    min-height: 120px;
+    max-height: 240px;
+    overflow-y: auto;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    line-height: 1.8;
+  }
+
+  .log-entry {
+    display: flex;
+    gap: 1rem;
+    padding: 2px 0;
+    animation: fade-in 0.3s ease;
+  }
+
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+  .log-time { color: var(--muted); flex-shrink: 0; }
+  .log-msg  { color: var(--text); }
+  .log-msg.ok   { color: var(--green); }
+  .log-msg.err  { color: var(--red); }
+  .log-msg.warn { color: var(--yellow); }
+
+  .log-empty {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 2rem 0;
+    text-align: center;
+  }
+
+  /* ── BACK LINK ── */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .back-link:hover { color: var(--accent); }
+
+  /* Scrollbar */
+  .log-body::-webkit-scrollbar { width: 4px; }
+  .log-body::-webkit-scrollbar-track { background: transparent; }
+  .log-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <a href="/" class="back-link">← BACK TO OBFUSCATOR</a>
+
+  <header>
+    <span class="logo">RBX<span>.</span>LOADER — DASHBOARD</span>
+    <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+  </header>
+
+  <!-- STAT GRID -->
+  <div class="stat-grid">
+    <div class="stat-card" style="--accent-color: var(--accent)">
+      <div class="stat-label">Total Obfuscations</div>
+      <div class="stat-value" id="totalObf">—</div>
+      <div class="stat-sub">all time</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--green)">
+      <div class="stat-label">Success Rate</div>
+      <div class="stat-value" id="successRate">—</div>
+      <div class="stat-sub">obfuscate calls</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--yellow)">
+      <div class="stat-label">Cache Size</div>
+      <div class="stat-value" id="cacheSize">—</div>
+      <div class="stat-sub">scripts in RAM</div>
+    </div>
+    <div class="stat-card" style="--accent-color: var(--red)">
+      <div class="stat-label">Skid Alerts</div>
+      <div class="stat-value" id="skidCount">—</div>
+      <div class="stat-sub">blocked requests</div>
+    </div>
+    <div class="stat-card" style="--accent-color: #a78bfa">
+      <div class="stat-label">Uptime</div>
+      <div class="stat-value" id="uptime">—</div>
+      <div class="stat-sub" id="startedAt">—</div>
+    </div>
+  </div>
+
+  <!-- RATE LIMIT INFO -->
+  <div class="section-title">RATE LIMIT CONFIG</div>
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="info-card-title">// /api/obfuscate</div>
+      <div class="info-row"><span class="info-key">Max requests</span><span class="info-val ok" id="rl-max">—</span></div>
+      <div class="info-row"><span class="info-key">Window</span><span class="info-val" id="rl-window">—</span></div>
+      <div class="info-row"><span class="info-key">Per</span><span class="info-val">IP address</span></div>
+      <div class="info-row"><span class="info-key">On exceed</span><span class="info-val warn">429 Too Many Requests</span></div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-title">// SERVER INFO</div>
+      <div class="info-row"><span class="info-key">Engine</span><span class="info-val">Prometheus (lua5.1)</span></div>
+      <div class="info-row"><span class="info-key">Cache TTL</span><span class="info-val">60 min</span></div>
+      <div class="info-row"><span class="info-key">GitHub backup</span><span class="info-val ok" id="ghStatus">—</span></div>
+      <div class="info-row"><span class="info-key">Telegram logging</span><span class="info-val ok" id="tgStatus">—</span></div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY LOG -->
+  <div class="section-title">ACTIVITY LOG</div>
+  <div class="log-card">
+    <div class="log-header">
+      <span>RECENT EVENTS</span>
+      <span id="logCount">0 events</span>
+    </div>
+    <div class="log-body" id="logBody">
+      <div class="log-empty">Waiting for activity data...</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let prevStats = {};
+
+  async function fetchStats() {
+    try {
+      const resp = await fetch('/api/stats');
+      if (!resp.ok) return;
+      const d = await resp.json();
+
+      setVal('totalObf', d.totalObfuscations);
+      setVal('cacheSize', d.cacheSize);
+      setVal('skidCount', d.skidAlerts);
+
+      // Success rate
+      const total = d.totalObfuscations + d.failedObfuscations;
+      const rate = total > 0 ? Math.round((d.totalObfuscations / total) * 100) : 100;
+      setVal('successRate', rate + '%');
+
+      // Uptime
+      const secs = Math.floor(d.uptimeSeconds);
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      document.getElementById('uptime').textContent =
+        h > 0 ? `${h}h ${m}m` : m > 0 ? `${m}m ${s}s` : `${s}s`;
+
+      const started = new Date(d.startedAt);
+      document.getElementById('startedAt').textContent =
+        'since ' + started.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+      // Rate limit info
+      document.getElementById('rl-max').textContent = d.rateLimit.max + ' req';
+      document.getElementById('rl-window').textContent = d.rateLimit.windowMinutes + ' min';
+
+      // Services
+      document.getElementById('ghStatus').textContent = d.services.github ? '✓ ACTIVE' : '✗ MISSING';
+      document.getElementById('ghStatus').className = 'info-val ' + (d.services.github ? 'ok' : 'bad');
+      document.getElementById('tgStatus').textContent = d.services.telegram ? '✓ ACTIVE' : '✗ MISSING';
+      document.getElementById('tgStatus').className = 'info-val ' + (d.services.telegram ? 'ok' : 'bad');
+
+      // Log
+      renderLog(d.recentActivity || []);
+
+    } catch (e) {
+      console.error('Stats fetch failed:', e);
+    }
+  }
+
+  function setVal(id, val) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.textContent !== String(val)) {
+      el.classList.add('updating');
+      setTimeout(() => el.classList.remove('updating'), 400);
+    }
+    el.textContent = val;
+  }
+
+  function renderLog(entries) {
+    const body = document.getElementById('logBody');
+    const count = document.getElementById('logCount');
+
+    if (!entries.length) {
+      body.innerHTML = '<div class="log-empty">No activity yet</div>';
+      count.textContent = '0 events';
+      return;
+    }
+
+    count.textContent = entries.length + ' events';
+    body.innerHTML = entries.slice().reverse().map(e => {
+      const time = new Date(e.ts).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      let cls = '';
+      if (e.type === 'obfuscate_ok') cls = 'ok';
+      else if (e.type === 'obfuscate_err') cls = 'err';
+      else if (e.type === 'skid_alert') cls = 'warn';
+      return `<div class="log-entry"><span class="log-time">[${time}]</span><span class="log-msg ${cls}">${escape(e.msg)}</span></div>`;
+    }).join('');
+  }
+
+  function escape(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  fetchStats();
+  setInterval(fetchStats, 5000);
+</script>
+</body>
+</html>
