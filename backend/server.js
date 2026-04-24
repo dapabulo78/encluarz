@@ -599,6 +599,7 @@ app.post('/api/obfuscate-custom', obfuscateRateLimit, async (req, res) => {
             scriptId,
             engine: 'matcha',
             githubBackup: githubOk,
+            warning: (!shouldUploadGithub || githubOk) ? null :
                 'GitHub backup gagal. Loadstring hanya valid 1 jam.',
         });
 
