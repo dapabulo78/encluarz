@@ -403,8 +403,8 @@
     }
 
     // Add header comment
-    output = '-- Obfuscated with encluarz\n' +
-             '-- love yall\n' + output;
+    output = '-- Obfuscated with Matcha Obfuscator\n' +
+             '-- https://github.com/matcha-obfuscator\n' + output;
 
     onProgress('Complete!', 100);
 
