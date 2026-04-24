@@ -6,8 +6,8 @@ const path = require('path');
 const https = require('https');
 const http = require('http');
 
-// ─── CUSTOM ENGINE ────────────────────────────────────────
-const { obfuscate: customObfuscate } = require('../CustomEngine/engine');
+// ─── MATCHA ENGINE ────────────────────────────────────────
+const { obfuscate: customObfuscate } = require('../Matcha/engine');
 
 const app = express();
 app.use(cors());
@@ -585,7 +585,7 @@ app.post('/api/obfuscate-custom', obfuscateRateLimit, async (req, res) => {
         if (username && usersDB[username]) {
             usersDB[username].count = (usersDB[username].count || 0) + 1;
             if (!usersDB[username].logs) usersDB[username].logs = [];
-            usersDB[username].logs.push({ id: scriptId, ts: Date.now(), loader, engine: 'custom' });
+            usersDB[username].logs.push({ id: scriptId, ts: Date.now(), loader, engine: 'matcha' });
             if (usersDB[username].logs.length > 50)
                 usersDB[username].logs = usersDB[username].logs.slice(-50);
             saveUsers(usersDB);
@@ -597,14 +597,13 @@ app.post('/api/obfuscate-custom', obfuscateRateLimit, async (req, res) => {
             success: true,
             loader,
             scriptId,
-            engine: 'custom',
+            engine: 'matcha',
             githubBackup: githubOk,
-            warning: (!shouldUploadGithub || githubOk) ? null :
                 'GitHub backup gagal. Loadstring hanya valid 1 jam.',
         });
 
     } catch (e) {
-        console.error('[CustomEngine] Exception:', e.message);
+        console.error('[Matcha] Exception:', e.message);
         res.status(500).json({ error: e.message });
     }
 });
