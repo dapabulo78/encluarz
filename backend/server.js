@@ -101,11 +101,11 @@ let LUA_BIN = 'lua5.1';
         try {
             execSync(`${bin} -v`, { stdio: 'ignore' });
             LUA_BIN = bin;
-            console.log(`[Encluarz] Lua binary: ${bin}`);
+            console.log(`[RBX.Loader] Lua binary: ${bin}`);
             return;
         } catch (e) {}
     }
-    console.warn('[Encluarz] WARNING: Tidak ada lua binary ditemukan!');
+    console.warn('[RBX.Loader] WARNING: Tidak ada lua binary ditemukan!');
 })();
 
 // ─── SESSION STORE (persistent ke disk) ──────────────────
@@ -437,10 +437,17 @@ app.get('/api/dashboard', (req, res) => {
 // ============================================================
 
 app.post('/api/obfuscate', obfuscateRateLimit, async (req, res) => {
+    const authHeader = req.headers['authorization'] || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const session = validateSession(token);
+    if (!session) {
+        return res.status(401).json({ error: 'Unauthorized. Silakan login terlebih dahulu.' });
+    }
+
     let { script, preset, useAntiTamper, useGithubBackup } = req.body;
     if (!script) return res.status(400).json({ error: "Script Kosong!" });
 
-    const username = 'guest';
+    const username = session.username;
     const presetKey = PRESETS[preset] ? preset : 'Medium';
     const configContent = PRESETS[presetKey];
     const shouldInjectAntiTamper = useAntiTamper !== false;
@@ -519,6 +526,13 @@ app.post('/api/obfuscate', obfuscateRateLimit, async (req, res) => {
 // ============================================================
 
 app.post('/api/obfuscate-custom', obfuscateRateLimit, async (req, res) => {
+    const authHeader = req.headers['authorization'] || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const session = validateSession(token);
+    if (!session) {
+        return res.status(401).json({ error: 'Unauthorized. Silakan login terlebih dahulu.' });
+    }
+
     const {
         script,
         useGithubBackup,
@@ -533,7 +547,7 @@ app.post('/api/obfuscate-custom', obfuscateRateLimit, async (req, res) => {
 
     if (!script) return res.status(400).json({ error: 'Script Kosong!' });
 
-    const username = 'guest';
+    const username = session.username;
     const shouldUploadGithub = useGithubBackup !== false;
 
     try {
@@ -600,6 +614,12 @@ app.post('/api/obfuscate-custom', obfuscateRateLimit, async (req, res) => {
 // ============================================================
 
 app.post('/api/deobfuscate', async (req, res) => {
+    const authHeader = req.headers['authorization'] || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const session = validateSession(token);
+    if (!session || session.role !== 'admin') {
+        return res.status(403).json({ error: 'Forbidden. Hanya admin yang bisa deobfuscate.' });
+    }
 
     const { script } = req.body;
     if (!script) return res.status(400).json({ error: 'Script kosong!' });
@@ -676,4 +696,4 @@ app.get('/Scripts', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`[Encluarz] Live on port ${PORT} | Engine: Prometheus + Encluarz | Lua: ${LUA_BIN}`));
+app.listen(PORT, () => console.log(`[RBX.Loader] Live on port ${PORT} | Engine: Prometheus | Lua: ${LUA_BIN}`));

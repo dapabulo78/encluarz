@@ -3,166 +3,182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ENCLUARZ — Lua Obfuscator</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>RBX.LOADER — Prometheus</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
 :root{
-  --bg:#060609;
-  --bg2:#0b0b10;
-  --surface:#0f0f16;
-  --surface2:#14141e;
-  --surface3:#1a1a26;
-  --border:#1e1e2e;
-  --border2:#2a2a3e;
-  --text:#e4e4f0;
-  --text2:#9090b0;
-  --muted:#505070;
-  --hint:#353550;
-
-  --accent:#7c6dfa;
-  --accent2:#a599ff;
-  --accent-glow:rgba(124,109,250,0.18);
-  --accent-border:rgba(124,109,250,0.3);
-
-  --green:#34d399;
-  --green-glow:rgba(52,211,153,0.12);
-  --green-border:rgba(52,211,153,0.25);
-
-  --amber:#fbbf24;
-  --red:#f87171;
-  --cyan:#67e8f9;
-
-  --enc:#c084fc;
-  --enc-glow:rgba(192,132,252,0.15);
-  --enc-border:rgba(192,132,252,0.3);
-
+  --bg:#0a0b0d;
+  --bg2:#0e1012;
+  --surface:#13161a;
+  --surface2:#181c21;
+  --border:#1e2430;
+  --border2:#28303e;
+  --text:#e8edf5;
+  --muted:#5a6478;
+  --hint:#3a4256;
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --accent-glow:rgba(59,130,246,0.15);
+  --green:#10b981;
+  --green-glow:rgba(16,185,129,0.12);
+  --amber:#f59e0b;
+  --red:#ef4444;
   --mono:'JetBrains Mono',monospace;
-  --sans:'Syne',sans-serif;
+  --sans:'Space Grotesk',sans-serif;
   --radius:10px;
-  --sidebar:230px;
+  --sidebar:220px;
 }
-
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13px}
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar{width:3px;height:3px}
+/* ── SCROLLBAR ────────────────── */
+::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 
-/* ── LAYOUT ── */
-.layout{display:flex;height:100vh;position:relative;z-index:1}
+/* ── LOGIN MODAL ───────────────── */
+#login-overlay{
+  position:fixed;inset:0;z-index:1000;
+  background:rgba(6,10,18,0.85);
+  backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .3s ease, visibility .3s ease;
+  visibility:hidden;opacity:0;
+}
+#login-overlay.show{visibility:visible;opacity:1;}
+#login-overlay .login-wrap{
+  transform:scale(0.96);
+  transition:transform .3s ease;
+}
+#login-overlay.show .login-wrap{transform:scale(1);}
 
-/* ── SIDEBAR ── */
+.login-wrap{
+  width:400px;
+  animation:fadeUp .5s ease both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+.login-brand{text-align:center;margin-bottom:36px}
+.login-brand-name{
+  font-family:var(--sans);font-size:28px;font-weight:700;
+  letter-spacing:-0.5px;color:var(--text);
+}
+.login-brand-name span{color:var(--accent)}
+.login-brand-sub{font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:6px;font-family:var(--mono)}
+
+.login-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:32px 28px;
+  box-shadow:0 24px 60px rgba(0,0,0,0.5),0 0 0 1px rgba(59,130,246,0.08);
+}
+
+.auth-tabs{display:flex;gap:4px;background:var(--bg2);padding:4px;border-radius:8px;margin-bottom:26px}
+.auth-tab{
+  flex:1;padding:8px;font-family:var(--mono);font-size:10px;letter-spacing:2px;
+  cursor:pointer;border:none;background:none;color:var(--muted);
+  border-radius:6px;transition:all .2s;
+}
+.auth-tab.active{background:var(--surface2);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.4)}
+
+.form-field{margin-bottom:16px}
+.form-lbl{font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:7px;display:block}
+.form-input{
+  width:100%;background:var(--bg2);
+  border:1px solid var(--border);color:var(--text);
+  font-family:var(--mono);font-size:12px;
+  padding:11px 14px;border-radius:8px;outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.form-input::placeholder{color:var(--hint)}
+
+.login-btn{
+  width:100%;background:var(--accent);border:none;color:#fff;
+  font-family:var(--mono);font-size:11px;letter-spacing:2px;
+  padding:13px;border-radius:8px;cursor:pointer;margin-top:6px;
+  transition:background .2s,transform .1s,box-shadow .2s;
+  box-shadow:0 4px 14px rgba(59,130,246,0.3);
+}
+.login-btn:hover{background:#2563eb;box-shadow:0 6px 20px rgba(59,130,246,0.4)}
+.login-btn:active{transform:scale(.98)}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.form-msg{font-size:10px;text-align:center;margin-top:10px;min-height:16px;transition:all .2s}
+.form-msg.error{color:var(--red)}
+.form-msg.ok{color:var(--green)}
+
+/* ── LAYOUT ─────────────────────── */
+.layout{display:flex;height:100vh}
+
+/* ── SIDEBAR ─────────────────────── */
 .sidebar{
   width:var(--sidebar);flex-shrink:0;
   background:var(--surface);
   border-right:1px solid var(--border);
   display:flex;flex-direction:column;
   height:100vh;
-  position:relative;
+  transition:transform .3s ease;
 }
-.sidebar::after{
-  content:'';position:absolute;top:0;right:-1px;width:1px;height:100%;
-  background:linear-gradient(to bottom,transparent,var(--accent-border) 30%,var(--enc-border) 70%,transparent);
+.sb-logo{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
+.sb-logo-main{
+  font-family:var(--sans);font-size:16px;font-weight:700;
+  color:var(--text);letter-spacing:-0.3px;
 }
+.sb-logo-main span{color:var(--accent)}
+.sb-logo-sub{font-size:8px;color:var(--muted);letter-spacing:3px;margin-top:4px;font-family:var(--mono)}
 
-/* ── LOGO ── */
-.sb-logo{
-  padding:24px 20px 20px;
-  border-bottom:1px solid var(--border);
-  position:relative;overflow:hidden;
+.sb-user{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 16px;border-bottom:1px solid var(--border);
 }
-.sb-logo::before{
-  content:'';position:absolute;top:-20px;right:-20px;
-  width:80px;height:80px;border-radius:50%;
-  background:radial-gradient(circle,var(--accent-glow),transparent 70%);
-}
-.logo-mark{
-  display:flex;align-items:center;gap:10px;margin-bottom:6px;
-}
-.logo-hex{
-  width:34px;height:34px;
-  background:linear-gradient(135deg,var(--accent),var(--enc));
-  border-radius:8px;
+.sb-avatar{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),#7c3aed);
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--sans);font-size:15px;font-weight:800;color:#fff;
-  box-shadow:0 4px 14px var(--accent-glow);
-  flex-shrink:0;
+  font-size:12px;font-weight:700;color:#fff;flex-shrink:0;
+  font-family:var(--sans);
 }
-.logo-name{
-  font-family:var(--sans);font-size:17px;font-weight:800;
-  letter-spacing:-0.5px;color:var(--text);
-}
-.logo-name span{
-  background:linear-gradient(135deg,var(--accent2),var(--enc));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-}
-.logo-sub{font-size:8px;color:var(--muted);letter-spacing:4px;font-family:var(--mono)}
+.sb-uname{font-size:11px;color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-role{font-size:8px;letter-spacing:1px;margin-top:2px}
+.sb-role.admin{color:var(--amber)}
+.sb-role.user{color:var(--green)}
 
-/* ── STATS MINI ── */
-.sb-stats{
-  display:flex;
-  border-bottom:1px solid var(--border);
-}
-.sb-stat{
-  flex:1;padding:12px 14px;
-  border-right:1px solid var(--border);
-  text-align:center;
-}
-.sb-stat:last-child{border-right:none}
-.sb-stat-val{font-family:var(--sans);font-size:20px;font-weight:700;color:var(--text);line-height:1}
-.sb-stat-lbl{font-size:7px;letter-spacing:2px;color:var(--muted);margin-top:4px}
-
-/* ── NAV ── */
-.sb-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.sb-nav{flex:1;padding:10px 10px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
 
 .sb-item{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 12px;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;gap:9px;
+  padding:9px 10px;border-radius:7px;cursor:pointer;
   font-size:11px;color:var(--muted);letter-spacing:.3px;
-  transition:all .15s;border:1px solid transparent;background:none;
+  transition:all .15s;border:none;background:none;
   width:100%;text-align:left;font-family:var(--mono);
 }
-.sb-item:hover{background:var(--surface2);color:var(--text2)}
-.sb-item.active{
-  background:var(--accent-glow);
-  color:var(--accent2);
-  border-color:var(--accent-border);
-}
-.sb-icon{width:16px;text-align:center;flex-shrink:0;font-style:normal}
+.sb-item:hover{background:var(--surface2);color:var(--text)}
+.sb-item.active{background:var(--accent-glow);color:var(--accent2);border:1px solid rgba(59,130,246,0.2)}
+.sb-item.hidden{display:none}
+.sb-icon{width:14px;text-align:center;flex-shrink:0;font-style:normal;font-size:13px}
 .sb-badge{
   margin-left:auto;font-size:7px;padding:2px 7px;
   border-radius:10px;letter-spacing:1px;
 }
-.sb-badge.live{
-  background:var(--green-glow);color:var(--green);
-  border:1px solid var(--green-border);
-  animation:badge-pulse 2s ease infinite;
-}
-@keyframes badge-pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.sb-badge.live{background:var(--green-glow);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.sb-badge.admin-only{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
 
-/* ── BOTTOM ── */
-.sb-bottom{
-  padding:14px 16px;
-  border-top:1px solid var(--border);
+.sb-bottom{padding:14px 16px;border-top:1px solid var(--border)}
+.sb-logout{
+  width:100%;font-size:9px;letter-spacing:1px;color:var(--muted);
+  cursor:pointer;border:1px solid var(--border);background:none;
+  font-family:var(--mono);padding:8px;border-radius:6px;
+  transition:all .15s;
 }
-.sb-version{font-size:8px;color:var(--hint);letter-spacing:2px;text-align:center}
-.online-pill{
-  display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px;background:var(--green-glow);border:1px solid var(--green-border);
-  border-radius:6px;margin-bottom:10px;
-  font-size:8px;letter-spacing:2px;color:var(--green);
-}
-.online-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-logout:hover{color:var(--red);border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.06)}
+.sb-version{font-size:8px;color:var(--hint);letter-spacing:1px;margin-top:8px;text-align:center}
 
-/* ── MAIN ── */
+/* ── MAIN ─────────────────────────── */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
 
-/* ── TOPBAR ── */
 .topbar{
   padding:14px 28px;
   background:var(--bg);
@@ -170,177 +186,140 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
   display:flex;align-items:center;justify-content:space-between;
   flex-shrink:0;
 }
-.page-title{
-  font-family:var(--sans);font-size:13px;font-weight:700;
-  letter-spacing:1px;color:var(--text2);
+.page-title{font-size:10px;letter-spacing:2px;color:var(--muted)}
+.status-pill{
+  font-size:8px;letter-spacing:1px;padding:4px 12px;
+  border-radius:20px;border:1px solid rgba(16,185,129,.25);
+  color:var(--green);background:var(--green-glow);
+  display:flex;align-items:center;gap:5px;
 }
-.topbar-right{display:flex;align-items:center;gap:10px}
-.engine-indicator{
-  font-size:8px;letter-spacing:2px;padding:4px 12px;
-  border-radius:20px;
-  border:1px solid var(--accent-border);
-  color:var(--accent2);background:var(--accent-glow);
-  transition:all .3s;
-}
+.status-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-.content{flex:1;overflow-y:auto;padding:22px 28px}
+.content{flex:1;overflow-y:auto;padding:24px 28px}
 
-/* ── SCREENS ── */
-.screen{display:none;animation:fadeIn .2s ease}
+/* ── SCREENS ─────────────────────────── */
+.screen{display:none;animation:fadeIn .25s ease}
 .screen.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 
-.section-lbl{
-  font-size:8px;letter-spacing:4px;color:var(--muted);
-  margin-bottom:18px;text-transform:uppercase;
-  display:flex;align-items:center;gap:10px;
-}
-.section-lbl::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-lbl{font-size:8px;letter-spacing:3px;color:var(--hint);margin-bottom:16px;text-transform:uppercase}
 
-/* ── WELCOME BANNER ── */
-.welcome-banner{
-  background:linear-gradient(135deg,var(--surface) 0%,rgba(124,109,250,.07) 50%,rgba(192,132,252,.05) 100%);
-  border:1px solid var(--accent-border);border-radius:12px;
-  padding:16px 22px;margin-bottom:18px;
-  display:flex;align-items:center;gap:16px;
-  position:relative;overflow:hidden;
-}
-.welcome-banner::before{
-  content:'';position:absolute;right:-30px;top:-30px;
-  width:100px;height:100px;border-radius:50%;
-  background:radial-gradient(circle,var(--accent-glow),transparent 70%);
-  pointer-events:none;
-}
-.welcome-text h2{
-  font-family:var(--sans);font-size:14px;font-weight:700;
-  color:var(--text);margin-bottom:4px;
-}
-.welcome-text p{font-size:9px;color:var(--muted);letter-spacing:.5px}
-.welcome-icon{font-size:26px;flex-shrink:0}
-
-/* ── STAT CARDS ── */
-.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+/* ── STAT CARDS ─────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:22px}
 .stat-card{
   background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:14px 18px;
-  transition:border-color .2s,box-shadow .2s;
-  position:relative;overflow:hidden;
-}
-.stat-card::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:2px;
-  background:linear-gradient(90deg,transparent,var(--accent),transparent);
-  opacity:0;transition:opacity .3s;
+  border-radius:var(--radius);padding:18px 20px;
+  transition:border-color .2s;
 }
 .stat-card:hover{border-color:var(--border2)}
-.stat-card:hover::before{opacity:1}
-.stat-lbl{font-size:7px;letter-spacing:3px;color:var(--muted);margin-bottom:10px}
-.stat-val{font-size:24px;font-weight:700;font-family:var(--sans);color:var(--text);line-height:1}
-.stat-sub{font-size:8px;color:var(--hint);margin-top:5px}
+.stat-lbl{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:10px}
+.stat-val{font-size:28px;font-weight:700;font-family:var(--sans);color:var(--text);line-height:1}
+.stat-sub{font-size:9px;color:var(--hint);margin-top:6px}
 
-/* ── ENGINE TABS ── */
-.engine-tabs{display:flex;gap:6px;margin-bottom:14px}
-.eng-tab{
-  padding:9px 22px;border-radius:8px;font-family:var(--mono);font-size:10px;
-  font-weight:600;letter-spacing:1.5px;cursor:pointer;transition:all .2s;
-  border:1px solid var(--border);background:var(--surface);color:var(--muted);
-}
-.eng-tab:hover{border-color:var(--border2);color:var(--text2)}
-.eng-tab.active{
-  background:var(--accent-glow);color:var(--accent2);
-  border-color:var(--accent-border);
-  box-shadow:0 0 20px var(--accent-glow);
-}
-.eng-tab[data-engine="custom"].active{
-  background:var(--enc-glow);color:var(--enc);
-  border-color:var(--enc-border);
-  box-shadow:0 0 20px var(--enc-glow);
-}
-
-/* ── PANELS ── */
+/* ── OBFUSCATE FORM ─────────────────── */
 .obf-header{
-  display:flex;align-items:center;gap:14px;margin-bottom:14px;
-  padding:12px 18px;background:var(--surface);
+  display:flex;align-items:center;gap:14px;margin-bottom:20px;
+  padding:16px 20px;background:var(--surface);
   border:1px solid var(--border);border-radius:var(--radius);
 }
 .obf-engine-badge{
-  font-size:7px;letter-spacing:2px;padding:4px 10px;
+  font-size:8px;letter-spacing:2px;padding:5px 12px;
   border-radius:20px;
   background:var(--accent-glow);color:var(--accent2);
-  border:1px solid var(--accent-border);
+  border:1px solid rgba(59,130,246,.25);
 }
 .obf-engine-name{font-size:13px;font-weight:600;font-family:var(--sans)}
 .obf-ver{font-size:9px;color:var(--muted);margin-left:auto}
 
-/* ── OPTIONS ROW ── */
-.options-row{
-  display:flex;align-items:stretch;flex-wrap:wrap;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--radius);padding:12px 18px;margin-bottom:12px;gap:16px;
+/* ── Engine Tabs ── */
+.engine-tabs{
+  display:flex;gap:8px;margin-bottom:14px;
 }
-.opt-g{display:flex;flex-direction:column;gap:7px}
-.opt-lbl{font-size:7px;letter-spacing:2px;color:var(--muted)}
+.eng-tab{
+  padding:8px 20px;border-radius:8px;font-family:var(--mono);font-size:11px;
+  font-weight:600;letter-spacing:1px;cursor:pointer;transition:all .2s;
+  border:1px solid var(--border);background:var(--surface);color:var(--muted);
+}
+.eng-tab.active{
+  background:var(--accent-glow);color:var(--accent2);
+  border-color:rgba(59,130,246,.4);box-shadow:0 0 14px rgba(59,130,246,.15);
+}
+.eng-tab[data-engine="custom"].active{
+  background:rgba(34,197,94,.12);color:#22c55e;
+  border-color:rgba(34,197,94,.4);box-shadow:0 0 14px rgba(34,197,94,.15);
+}
+
+.options-row{
+  display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 20px;margin-bottom:16px;gap:20px;
+}
+.opt-g{display:flex;flex-direction:column;gap:8px}
+.opt-lbl{font-size:8px;letter-spacing:2px;color:var(--muted)}
 .opt-select{
   font-family:var(--mono);font-size:11px;
   background:var(--bg2);border:1px solid var(--border);
-  color:var(--text);padding:6px 10px;border-radius:6px;
+  color:var(--text);padding:7px 10px;border-radius:6px;
   outline:none;cursor:pointer;transition:border-color .2s;
 }
 .opt-select:focus{border-color:var(--accent)}
-.opt-select option{background:var(--surface2)}
 .opt-div{width:1px;background:var(--border);align-self:stretch}
+.tog-row{display:flex;align-items:center;gap:9px}
+.toggle{
+  width:34px;height:18px;border-radius:10px;
+  background:var(--border2);cursor:pointer;position:relative;
+  transition:background .2s;flex-shrink:0;
+}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:14px;height:14px;border-radius:50%;
+  background:#fff;transition:left .2s;
+}
+.toggle.on{background:var(--accent)}
+.toggle.on::after{left:18px}
+.tog-lbl{font-size:9px;color:var(--muted);transition:color .2s}
+.tog-lbl.on{color:var(--text)}
 
-/* ── EDITORS ── */
-.editors{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.editors{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 .editor{display:flex;flex-direction:column}
 .editor-head{
   display:flex;align-items:center;justify-content:space-between;
-  padding:8px 14px;background:var(--surface2);
+  padding:9px 14px;background:var(--surface);
   border:1px solid var(--border);border-bottom:none;
   border-radius:8px 8px 0 0;
-  font-size:8px;letter-spacing:2px;color:var(--muted);
+  font-size:9px;letter-spacing:1px;color:var(--muted);
 }
-.editor-actions{display:flex;gap:4px}
+.editor-actions{display:flex;gap:5px}
 .editor-btn{
-  font-size:8px;letter-spacing:1px;cursor:pointer;color:var(--muted);
+  font-size:9px;letter-spacing:1px;cursor:pointer;color:var(--muted);
   border:1px solid var(--border);background:none;
-  font-family:var(--mono);padding:3px 9px;border-radius:5px;
+  font-family:var(--mono);padding:3px 10px;border-radius:5px;
   transition:all .15s;
 }
 .editor-btn:hover{color:var(--text);border-color:var(--border2)}
 .editor textarea{
-  flex:1;min-height:210px;resize:vertical;
+  flex:1;min-height:230px;resize:vertical;
   background:var(--surface);border:1px solid var(--border);
   color:var(--text);font-family:var(--mono);
-  font-size:11px;line-height:1.75;padding:14px;
+  font-size:11px;line-height:1.7;padding:14px;
   border-radius:0 0 8px 8px;outline:none;
   transition:border-color .2s;
 }
 .editor textarea:focus{border-color:var(--border2)}
 .editor textarea::placeholder{color:var(--hint)}
 
-/* ── RUN BUTTON ── */
 .run-btn{
-  width:100%;padding:14px;
-  background:linear-gradient(135deg,var(--accent),#5b4de0);
-  border:none;color:#fff;
-  font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:3px;
+  width:100%;padding:15px;
+  background:var(--accent);border:none;color:#fff;
+  font-family:var(--mono);font-size:11px;letter-spacing:3px;
   border-radius:8px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:10px;
-  transition:all .25s;
-  box-shadow:0 4px 24px var(--accent-glow);
-  position:relative;overflow:hidden;
+  transition:all .2s;box-shadow:0 4px 20px rgba(59,130,246,0.25);
 }
-.run-btn::before{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);
-  opacity:0;transition:opacity .2s;
-}
-.run-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px var(--accent-glow)}
-.run-btn:hover::before{opacity:1}
+.run-btn:hover{background:#2563eb;box-shadow:0 6px 28px rgba(59,130,246,0.35);transform:translateY(-1px)}
 .run-btn:active{transform:translateY(0)}
-.run-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
-.run-btn.enc{background:linear-gradient(135deg,var(--enc),#9333ea);box-shadow:0 4px 24px var(--enc-glow)}
-.run-btn.enc:hover{box-shadow:0 8px 32px var(--enc-glow)}
+.run-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
 
 .spinner{
   width:14px;height:14px;
@@ -350,16 +329,17 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
 .spinner.show{display:block}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── RESULT BOX ── */
+/* ── RESULT BANNER ─────────────────── */
 .result-box{
-  margin-top:12px;background:var(--surface);
+  margin-top:14px;background:var(--surface);
   border:1px solid var(--border);border-radius:var(--radius);
-  padding:16px 18px;display:none;animation:fadeIn .3s ease;
+  padding:18px 20px;display:none;
+  animation:fadeIn .3s ease;
 }
 .result-box.show{display:block}
-.result-box.success{border-color:var(--green-border);background:rgba(52,211,153,.03)}
-.result-box.error{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.03)}
-.result-label{font-size:7px;letter-spacing:3px;color:var(--muted);margin-bottom:10px}
+.result-box.success{border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.04)}
+.result-box.error{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.04)}
+.result-label{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:10px}
 .result-loader{
   font-size:11px;color:var(--text);word-break:break-all;
   background:var(--bg2);padding:12px 14px;border-radius:6px;
@@ -369,26 +349,28 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
 .result-loader:hover{border-color:var(--accent)}
 .result-copy-hint{font-size:9px;color:var(--muted);margin-top:6px}
 .result-copy-hint.copied{color:var(--green)}
-.result-warn{font-size:10px;color:var(--amber);margin-top:8px}
+.result-warn{font-size:10px;color:var(--amber);margin-top:10px}
 .result-error-msg{font-size:11px;color:var(--red)}
 
-/* ── HISTORY ── */
+/* ── HISTORY ─────────────────────── */
 .log-table{width:100%;border-collapse:collapse}
 .log-table th{
-  text-align:left;font-size:7px;letter-spacing:2px;
+  text-align:left;font-size:8px;letter-spacing:2px;
   color:var(--hint);padding:8px 12px;
   border-bottom:1px solid var(--border);
 }
 .log-table td{
   padding:10px 12px;font-size:10px;
-  border-bottom:1px solid var(--border);vertical-align:middle;
+  border-bottom:1px solid var(--border);
+  vertical-align:middle;
 }
 .log-table tr:last-child td{border-bottom:none}
 .log-table tr:hover td{background:var(--surface2)}
-.log-id{font-weight:600;color:var(--accent2);font-family:var(--mono)}
+.log-id{font-weight:600;color:var(--accent2);font-size:10px;font-family:var(--mono)}
 .log-loader-code{
   font-size:9px;color:var(--muted);
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  max-width:260px;
 }
 .log-time{font-size:9px;color:var(--hint);white-space:nowrap}
 .log-copy-btn{
@@ -397,54 +379,80 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
   border-radius:4px;cursor:pointer;transition:all .15s;
 }
 .log-copy-btn:hover{color:var(--text);border-color:var(--border2)}
-.empty-state{text-align:center;padding:60px 20px;font-size:11px;color:var(--hint)}
-.empty-icon{font-size:28px;margin-bottom:12px;opacity:.4}
+.empty-state{
+  text-align:center;padding:60px 20px;
+  font-size:11px;color:var(--hint);
+}
+.empty-icon{font-size:28px;margin-bottom:12px;opacity:.5}
 
-/* ── SETTINGS ── */
+/* ── DASHBOARD ─────────────────────── */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.dash-stat{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 18px;
+}
+.dash-lbl{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:10px}
+.dash-val{font-size:24px;font-weight:700;font-family:var(--sans)}
+.dash-sub{font-size:9px;color:var(--hint);margin-top:5px}
+.dash-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.dash-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;
+}
+.dash-card-title{font-size:8px;letter-spacing:2px;color:var(--hint);margin-bottom:16px}
+.dash-log{padding:8px 0;border-bottom:1px solid var(--border);font-size:10px;display:flex;align-items:center;gap:10px}
+.dash-log:last-child{border-bottom:none}
+.dash-log-id{font-weight:600;color:var(--accent2);flex-shrink:0}
+.dash-log-user{color:var(--muted);font-size:9px}
+.dash-log-time{color:var(--hint);font-size:9px;margin-left:auto}
+.users-table{width:100%;border-collapse:collapse;font-size:10px}
+.users-table th{text-align:left;font-size:8px;letter-spacing:2px;color:var(--hint);padding:6px 10px;border-bottom:1px solid var(--border)}
+.users-table td{padding:9px 10px;border-bottom:1px solid var(--border)}
+.users-table tr:last-child td{border-bottom:none}
+.role-chip{font-size:7px;padding:2px 8px;border-radius:4px;letter-spacing:1px}
+.role-chip.admin{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.2)}
+.role-chip.user{background:var(--green-glow);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+
+/* ── DEOBFUSCATE ─────────────────── */
+.deobf-header{
+  display:flex;align-items:center;gap:14px;margin-bottom:18px;
+  padding:16px 20px;background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);
+}
+.deobf-badge{
+  font-size:8px;letter-spacing:2px;padding:5px 12px;
+  border-radius:20px;background:rgba(245,158,11,.1);
+  color:var(--amber);border:1px solid rgba(245,158,11,.25);
+}
+.deobf-editors{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+
+/* ── SETTINGS ─────────────────── */
 .settings-card{
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius);padding:20px 22px;margin-bottom:14px;
 }
-.settings-title{font-size:7px;letter-spacing:3px;color:var(--hint);margin-bottom:18px}
+.settings-title{font-size:8px;letter-spacing:2px;color:var(--hint);margin-bottom:18px}
 .settings-row{
   display:flex;align-items:center;justify-content:space-between;
   padding:10px 0;border-bottom:1px solid var(--border);
 }
 .settings-row:last-child{border-bottom:none}
-.settings-lbl{font-size:11px;font-family:var(--sans);font-weight:600}
+.settings-lbl{font-size:11px;font-family:var(--sans);font-weight:500}
 .settings-sub{font-size:9px;color:var(--muted);margin-top:3px}
 .settings-val{font-size:10px;color:var(--muted)}
 .badge-green{
-  font-size:7px;padding:3px 10px;border-radius:20px;
+  font-size:8px;padding:3px 10px;border-radius:20px;
   background:var(--green-glow);color:var(--green);
-  border:1px solid var(--green-border);letter-spacing:1px;
-}
-.badge-purple{
-  font-size:7px;padding:3px 10px;border-radius:20px;
-  background:var(--enc-glow);color:var(--enc);
-  border:1px solid var(--enc-border);letter-spacing:1px;
+  border:1px solid rgba(16,185,129,.2);letter-spacing:1px;
 }
 
-/* ── DEOBFUSCATE ── */
-.deobf-header{
-  display:flex;align-items:center;gap:14px;margin-bottom:18px;
-  padding:12px 18px;background:var(--surface);
-  border:1px solid var(--border);border-radius:var(--radius);
-}
-.deobf-badge{
-  font-size:7px;letter-spacing:2px;padding:4px 10px;
-  border-radius:20px;background:rgba(251,191,36,.1);
-  color:var(--amber);border:1px solid rgba(251,191,36,.25);
-}
-.deobf-editors{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-
-/* ── TOAST ── */
+/* ── TOAST ─────────────────────── */
 #toast{
   position:fixed;bottom:24px;right:24px;z-index:2000;
-  background:var(--surface3);border:1px solid var(--border2);
-  color:var(--text);font-size:11px;padding:11px 18px;
-  border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.5);
-  transform:translateY(16px);opacity:0;
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--text);font-size:11px;padding:12px 18px;
+  border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  transform:translateY(12px);opacity:0;
   transition:all .25s ease;pointer-events:none;letter-spacing:.5px;
 }
 #toast.show{transform:translateY(0);opacity:1}
@@ -452,31 +460,72 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
 </head>
 <body>
 
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" onclick="handleOverlayClick(event)">
+  <div class="login-wrap" onclick="event.stopPropagation()">
+    <div class="login-brand">
+      <div class="login-brand-name">RBX<span>.</span>LOADER</div>
+      <div class="login-brand-sub">PROMETHEUS ENGINE · LUA OBFUSCATOR</div>
+    </div>
+    <div class="login-card">
+      <div class="auth-tabs" style="position:relative">
+        <button class="auth-tab active" onclick="switchTab('login')">LOGIN</button>
+        <button class="auth-tab" onclick="switchTab('register')">REGISTER</button>
+        <button onclick="hideLoginModal()" style="position:absolute;right:0;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px 8px;line-height:1" title="Tutup">✕</button>
+      </div>
+      <!-- Login Form -->
+      <div id="tab-login">
+        <div class="form-field">
+          <label class="form-lbl">USERNAME</label>
+          <input class="form-input" id="l-user" type="text" placeholder="username" autocomplete="username">
+        </div>
+        <div class="form-field">
+          <label class="form-lbl">PASSWORD</label>
+          <input class="form-input" id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <button class="login-btn" onclick="doLogin()">MASUK</button>
+        <div class="form-msg" id="l-msg"></div>
+      </div>
+      <!-- Register Form -->
+      <div id="tab-register" style="display:none">
+        <div class="form-field">
+          <label class="form-lbl">USERNAME</label>
+          <input class="form-input" id="r-user" type="text" placeholder="username baru">
+        </div>
+        <div class="form-field">
+          <label class="form-lbl">PASSWORD</label>
+          <input class="form-input" id="r-pass" type="password" placeholder="••••••••">
+        </div>
+        <button class="login-btn" onclick="doRegister()">DAFTAR</button>
+        <div class="form-msg" id="r-msg"></div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <button onclick="hideLoginModal()" style="background:none;border:none;color:var(--muted);font-size:11px;font-family:var(--mono);cursor:pointer;letter-spacing:1px;text-decoration:underline;opacity:.6">
+          LANJUT TANPA LOGIN (view only)
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
 <div id="toast"></div>
 
+<!-- MAIN LAYOUT -->
 <div class="layout">
-
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sb-logo">
-      <div class="logo-mark">
-        <div class="logo-hex">E</div>
-        <div class="logo-name"><span>ENCLUARZ</span></div>
-      </div>
-      <div class="logo-sub">LUA OBFUSCATOR</div>
+      <div class="sb-logo-main">RBX<span>.</span>LOADER</div>
+      <div class="sb-logo-sub">PROMETHEUS</div>
     </div>
-
-    <div class="sb-stats">
-      <div class="sb-stat">
-        <div class="sb-stat-val" id="sb-total">0</div>
-        <div class="sb-stat-lbl">DIOBFUS</div>
-      </div>
-      <div class="sb-stat">
-        <div class="sb-stat-val" style="color:var(--green)">2</div>
-        <div class="sb-stat-lbl">ENGINE</div>
+    <div class="sb-user">
+      <div class="sb-avatar" id="sb-avatar">?</div>
+      <div style="flex:1;min-width:0">
+        <div class="sb-uname" id="sb-uname">GUEST</div>
+        <div class="sb-role" id="sb-role">—</div>
       </div>
     </div>
-
     <nav class="sb-nav">
       <button class="sb-item active" onclick="showScreen('obfuscate')">
         <i class="sb-icon">⚡</i> Obfuscate
@@ -488,17 +537,21 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
       <button class="sb-item" onclick="showScreen('deobfuscate')">
         <i class="sb-icon">🔍</i> Deobfuscate
       </button>
+      <button class="sb-item hidden" id="nav-dashboard" onclick="showScreen('dashboard')">
+        <i class="sb-icon">📊</i> Dashboard
+        <span class="sb-badge admin-only">ADMIN</span>
+      </button>
       <button class="sb-item" onclick="showScreen('settings')">
         <i class="sb-icon">⚙️</i> Settings
       </button>
     </nav>
-
     <div class="sb-bottom">
-      <div class="online-pill">
-        <span class="online-dot"></span>
-        ENGINE ONLINE
+      <div id="sb-guest-bar" style="display:none;margin-bottom:8px">
+        <button class="sb-logout" style="color:#3b82f6;border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.06);width:100%;margin-bottom:4px" onclick="showLoginModal()">LOGIN / DAFTAR</button>
+        <div style="font-size:9px;color:var(--hint);text-align:center;letter-spacing:1px">Kamu sedang sebagai GUEST</div>
       </div>
-      <div class="sb-version">v3.2 · prometheus + encluarz</div>
+      <button class="sb-logout" id="sb-logout-btn" onclick="doLogout()">LOGOUT</button>
+      <div class="sb-version">v3.1 · prometheus + custom engine</div>
     </div>
   </div>
 
@@ -506,48 +559,40 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
   <div class="main">
     <div class="topbar">
       <div class="page-title" id="page-title">OBFUSCATE</div>
-      <div class="topbar-right">
-        <div class="engine-indicator" id="topbar-engine">PROMETHEUS</div>
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        PROMETHEUS ONLINE
       </div>
     </div>
     <div class="content">
 
       <!-- OBFUSCATE SCREEN -->
       <div class="screen active" id="screen-obfuscate">
-
-        <div class="welcome-banner">
-          <div class="welcome-icon">🛡️</div>
-          <div class="welcome-text">
-            <h2>Selamat datang di Encluarz</h2>
-            <p>Obfuscate script Lua kamu gratis — tanpa login, tanpa batas</p>
-          </div>
-        </div>
-
         <div class="stats-row">
           <div class="stat-card">
             <div class="stat-lbl">SCRIPTS DIOBFUS</div>
             <div class="stat-val" id="my-count">0</div>
-            <div class="stat-sub">sesi ini</div>
+            <div class="stat-sub">total by you</div>
           </div>
           <div class="stat-card">
-            <div class="stat-lbl">ACTIVE ENGINE</div>
-            <div class="stat-val" id="stat-engine" style="font-size:13px;font-family:var(--mono);color:var(--accent2)">PROMETHEUS</div>
+            <div class="stat-lbl">ENGINE</div>
+            <div class="stat-val" id="stat-engine" style="font-size:16px;font-family:var(--mono);color:var(--accent2)">PROMETHEUS</div>
             <div class="stat-sub" id="stat-engine-sub">lua 5.1 / LuaU</div>
           </div>
           <div class="stat-card">
-            <div class="stat-lbl">GITHUB BACKUP</div>
-            <div class="stat-val" style="font-size:13px;color:var(--green)">AUTO ON</div>
-            <div class="stat-sub">selalu aktif</div>
+            <div class="stat-lbl">STATUS SESSION</div>
+            <div class="stat-val" style="font-size:16px;color:var(--green)">AKTIF</div>
+            <div class="stat-sub">login permanen</div>
           </div>
         </div>
 
         <!-- ENGINE SELECTOR -->
-        <div class="engine-tabs">
-          <button class="eng-tab active" data-engine="prometheus" onclick="selectEngine('prometheus')">
-            🔥 PROMETHEUS
+        <div class="engine-tabs" id="engine-tabs">
+          <button class="eng-tab active" id="tab-prometheus" onclick="selectEngine('prometheus')">
+            🔥 Prometheus
           </button>
-          <button class="eng-tab" data-engine="custom" onclick="selectEngine('custom')">
-            ✦ ENCLUARZ
+          <button class="eng-tab" id="tab-custom" onclick="selectEngine('custom')">
+            🍵 Matcha
           </button>
         </div>
 
@@ -567,52 +612,78 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
                 <option value="Strong">Strong — Max</option>
               </select>
             </div>
+            <div class="opt-div"></div>
+            <div class="opt-g">
+              <div class="opt-lbl">ANTI-TAMPER</div>
+              <div class="tog-row">
+                <div class="toggle on" id="tog-at" onclick="toggleSwitch('tog-at','lbl-at')"></div>
+                <span class="tog-lbl on" id="lbl-at">Aktif</span>
+              </div>
+            </div>
+            <div class="opt-div"></div>
+            <div class="opt-g">
+              <div class="opt-lbl">GITHUB BACKUP</div>
+              <div class="tog-row">
+                <div class="toggle on" id="tog-gh" onclick="toggleSwitch('tog-gh','lbl-gh')"></div>
+                <span class="tog-lbl on" id="lbl-gh">Aktif</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- ENCLUARZ ENGINE PANEL -->
+        <!-- MATCHA ENGINE PANEL -->
         <div id="panel-custom" style="display:none">
-          <div class="obf-header" style="border-color:var(--enc-border);box-shadow:0 0 24px var(--enc-glow)">
-            <div class="obf-engine-badge" style="background:var(--enc-glow);color:var(--enc);border-color:var(--enc-border)">ENGINE</div>
-            <div class="obf-engine-name" style="color:var(--enc)">Encluarz Obfuscator</div>
+          <div class="obf-header" style="border-color:#22c55e;box-shadow:0 0 20px rgba(34,197,94,0.15)">
+            <div class="obf-engine-badge" style="background:#22c55e;color:#fff">MATCHA</div>
+            <div class="obf-engine-name" style="color:#22c55e">Matcha Obfuscator</div>
             <div class="obf-ver">Lua · LuaU · Roblox Lua</div>
           </div>
 
-          <div class="options-row">
+          <!-- Row 1: Teknik -->
+          <div class="options-row" style="flex-wrap:wrap;gap:10px">
             <div class="opt-g">
               <div class="opt-lbl">VAR RENAME</div>
-              <select class="opt-select" id="ce-vr-mode">
-                <option value="1">Aktif</option>
-                <option value="0">Nonaktif</option>
-              </select>
+              <div class="tog-row">
+                <div class="toggle on" id="ce-vr" onclick="toggleSwitch('ce-vr','ce-vr-lbl')"></div>
+                <span class="tog-lbl on" id="ce-vr-lbl">Aktif</span>
+              </div>
             </div>
             <div class="opt-div"></div>
             <div class="opt-g">
               <div class="opt-lbl">STRING ENCODE</div>
-              <select class="opt-select" id="ce-se-mode">
-                <option value="1">Aktif</option>
-                <option value="0">Nonaktif</option>
-              </select>
+              <div class="tog-row">
+                <div class="toggle on" id="ce-se" onclick="toggleSwitch('ce-se','ce-se-lbl')"></div>
+                <span class="tog-lbl on" id="ce-se-lbl">Aktif</span>
+              </div>
             </div>
             <div class="opt-div"></div>
             <div class="opt-g">
               <div class="opt-lbl">JUNK CODE</div>
-              <select class="opt-select" id="ce-jk-mode">
-                <option value="1">Aktif</option>
-                <option value="0">Nonaktif</option>
-              </select>
+              <div class="tog-row">
+                <div class="toggle on" id="ce-jk" onclick="toggleSwitch('ce-jk','ce-jk-lbl')"></div>
+                <span class="tog-lbl on" id="ce-jk-lbl">Aktif</span>
+              </div>
             </div>
             <div class="opt-div"></div>
             <div class="opt-g">
               <div class="opt-lbl">CONTROL FLOW</div>
-              <select class="opt-select" id="ce-cf-mode">
-                <option value="1">Aktif</option>
-                <option value="0">Nonaktif</option>
-              </select>
+              <div class="tog-row">
+                <div class="toggle on" id="ce-cf" onclick="toggleSwitch('ce-cf','ce-cf-lbl')"></div>
+                <span class="tog-lbl on" id="ce-cf-lbl">Aktif</span>
+              </div>
+            </div>
+            <div class="opt-div"></div>
+            <div class="opt-g">
+              <div class="opt-lbl">ANTI-TAMPER</div>
+              <div class="tog-row">
+                <div class="toggle on" id="ce-at" onclick="toggleSwitch('ce-at','ce-at-lbl')"></div>
+                <span class="tog-lbl on" id="ce-at-lbl">Aktif</span>
+              </div>
             </div>
           </div>
 
-          <div class="options-row" style="margin-top:-4px">
+          <!-- Row 2: Layer count + junk density + github -->
+          <div class="options-row" style="margin-top:8px">
             <div class="opt-g">
               <div class="opt-lbl">XOR LAYERS</div>
               <select class="opt-select" id="ce-layers">
@@ -632,6 +703,14 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
                 <option value="0.6">High (60%)</option>
                 <option value="0.85">Max (85%)</option>
               </select>
+            </div>
+            <div class="opt-div"></div>
+            <div class="opt-g">
+              <div class="opt-lbl">GITHUB BACKUP</div>
+              <div class="tog-row">
+                <div class="toggle on" id="ce-gh" onclick="toggleSwitch('ce-gh','ce-gh-lbl')"></div>
+                <span class="tog-lbl on" id="ce-gh-lbl">Aktif</span>
+              </div>
             </div>
           </div>
         </div>
@@ -680,13 +759,12 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
               <tr>
                 <th>SCRIPT ID</th>
                 <th>LOADSTRING</th>
-                <th>ENGINE</th>
                 <th>WAKTU</th>
                 <th></th>
               </tr>
             </thead>
             <tbody id="history-body">
-              <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada history</div></td></tr>
+              <tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada history</div></td></tr>
             </tbody>
           </table>
         </div>
@@ -694,9 +772,8 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
 
       <!-- DEOBFUSCATE SCREEN -->
       <div class="screen" id="screen-deobfuscate">
-        <div class="section-lbl">DEOBFUSCATE</div>
         <div class="deobf-header">
-          <div class="deobf-badge">EXPERIMENTAL</div>
+          <div class="deobf-badge">ADMIN ONLY</div>
           <div class="obf-engine-name">Prometheus Deobfuscator</div>
           <div class="obf-ver">auto-detect pipeline</div>
         </div>
@@ -708,7 +785,7 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
                 <button class="editor-btn" onclick="document.getElementById('deobf-input').value=''">CLEAR</button>
               </div>
             </div>
-            <textarea id="deobf-input" placeholder="-- paste script yang sudah diobfus..." style="min-height:280px"></textarea>
+            <textarea id="deobf-input" placeholder="-- paste script yang sudah diobfus..." style="min-height:300px"></textarea>
           </div>
           <div class="editor">
             <div class="editor-head">
@@ -717,89 +794,181 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
                 <button class="editor-btn" onclick="copyText('deobf-output')">COPY</button>
               </div>
             </div>
-            <textarea id="deobf-output" placeholder="-- hasil deobfuscation..." readonly style="min-height:280px"></textarea>
+            <textarea id="deobf-output" placeholder="-- hasil deobfuscation..." readonly style="min-height:300px"></textarea>
           </div>
         </div>
-        <button class="run-btn" id="deobf-btn" onclick="doDeobfuscate()" style="background:linear-gradient(135deg,#6366f1,#4338ca)">
+        <button class="run-btn" id="deobf-btn" onclick="doDeobfuscate()" style="background:#6366f1;box-shadow:0 4px 20px rgba(99,102,241,0.25)">
           <div class="spinner" id="deobf-spinner"></div>
           <span id="deobf-txt">🔍 DEOBFUSCATE</span>
         </button>
         <div class="result-box" id="deobf-result"></div>
       </div>
 
+      <!-- DASHBOARD SCREEN -->
+      <div class="screen" id="screen-dashboard">
+        <div class="section-lbl">ADMIN DASHBOARD</div>
+        <div class="dash-grid">
+          <div class="dash-stat">
+            <div class="dash-lbl">TOTAL SCRIPTS</div>
+            <div class="dash-val" id="d-total">—</div>
+            <div class="dash-sub">all time</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-lbl">CACHE AKTIF</div>
+            <div class="dash-val" id="d-cache">—</div>
+            <div class="dash-sub">scripts in RAM</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-lbl">SKID ALERTS</div>
+            <div class="dash-val" id="d-skid" style="color:var(--amber)">—</div>
+            <div class="dash-sub">browser access attempts</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-lbl">SERVER</div>
+            <div class="dash-val" id="d-status" style="color:var(--green);font-size:16px">—</div>
+            <div class="dash-sub">status</div>
+          </div>
+        </div>
+        <div class="dash-cards">
+          <div class="dash-card">
+            <div class="dash-card-title">LOG TERBARU</div>
+            <div id="d-logs"></div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-title">SEMUA USER</div>
+            <table class="users-table">
+              <thead><tr><th>USERNAME</th><th>ROLE</th><th>SCRIPTS</th></tr></thead>
+              <tbody id="d-users"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- SETTINGS SCREEN -->
       <div class="screen" id="screen-settings">
         <div class="section-lbl">SETTINGS</div>
         <div class="settings-card">
-          <div class="settings-title">ENGINE INFO</div>
+          <div class="settings-title">INFORMASI ENGINE</div>
           <div class="settings-row">
             <div>
-              <div class="settings-lbl">Prometheus Engine</div>
-              <div class="settings-sub">Lua 5.1 / LuaU · MangledShuffled</div>
+              <div class="settings-lbl">Engine Aktif</div>
+              <div class="settings-sub">Satu-satunya engine yang tersedia</div>
+            </div>
+            <span class="badge-green">PROMETHEUS</span>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-lbl">Lua Version</div>
+              <div class="settings-sub">Target runtime</div>
+            </div>
+            <div class="settings-val">Lua 5.1 / LuaU</div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-lbl">Name Generator</div>
+              <div class="settings-sub">Metode rename variabel</div>
+            </div>
+            <div class="settings-val">MangledShuffled</div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-title">SESI & KEAMANAN</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-lbl">Login Persist</div>
+              <div class="settings-sub">Session disimpan di localStorage (30 hari)</div>
             </div>
             <span class="badge-green">AKTIF</span>
           </div>
           <div class="settings-row">
             <div>
-              <div class="settings-lbl">Encluarz Engine</div>
-              <div class="settings-sub">Multi-layer XOR · Lua / LuaU / Roblox Lua</div>
+              <div class="settings-lbl">Auto Logout</div>
+              <div class="settings-sub">Session diperbarui setiap kali digunakan</div>
             </div>
-            <span class="badge-purple">AKTIF</span>
-          </div>
-          <div class="settings-row">
-            <div>
-              <div class="settings-lbl">GitHub Backup</div>
-              <div class="settings-sub">Script otomatis tersimpan ke GitHub</div>
-            </div>
-            <span class="badge-green">AUTO ON</span>
-          </div>
-          <div class="settings-row">
-            <div>
-              <div class="settings-lbl">Anti-Tamper</div>
-              <div class="settings-sub">Proteksi Roblox executor injection</div>
-            </div>
-            <span class="badge-green">AUTO ON</span>
+            <div class="settings-val">30 hari inaktif</div>
           </div>
         </div>
         <div class="settings-card">
-          <div class="settings-title">TENTANG</div>
+          <div class="settings-title">AKUN</div>
           <div class="settings-row">
-            <div><div class="settings-lbl">Versi</div></div>
-            <div class="settings-val">v3.2</div>
+            <div>
+              <div class="settings-lbl">Username</div>
+            </div>
+            <div class="settings-val" id="s-username">—</div>
           </div>
           <div class="settings-row">
             <div>
-              <div class="settings-lbl">Mode Akses</div>
-              <div class="settings-sub">Semua fitur gratis tanpa login</div>
+              <div class="settings-lbl">Role</div>
             </div>
-            <span class="badge-green">FREE</span>
+            <div class="settings-val" id="s-role">—</div>
           </div>
-          <div class="settings-row">
-            <div>
-              <div class="settings-lbl">Loadstring TTL</div>
-              <div class="settings-sub">Dengan GitHub backup = permanen</div>
-            </div>
-            <div class="settings-val">Permanen</div>
+          <div class="settings-row" style="padding-top:14px">
+            <button class="sb-logout" style="width:auto;padding:8px 20px" onclick="doLogout()">LOGOUT</button>
           </div>
         </div>
       </div>
 
-    </div>
-  </div>
-</div>
+    </div><!-- .content -->
+  </div><!-- .main -->
+</div><!-- .layout -->
 
 <script>
-let myLogs = [];
-let activeEngine = 'prometheus';
-let sessionCount = 0;
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  LOGIN MODAL CONTROL
+// ══════════════════════════════════════════════════════════
+function showLoginModal(tab = 'login') {
+  const ol = document.getElementById('login-overlay');
+  ol.classList.add('show');
+  switchTab(tab);
+  // Focus first input
+  setTimeout(() => {
+    const inp = document.getElementById(tab === 'login' ? 'l-user' : 'r-user');
+    if (inp) inp.focus();
+  }, 120);
+}
 
-function toast(msg, dur = 2400) {
+function hideLoginModal() {
+  document.getElementById('login-overlay').classList.remove('show');
+}
+
+function handleOverlayClick(e) {
+  // Close modal when clicking the backdrop (not the card itself)
+  hideLoginModal();
+}
+
+function updateGuestBar() {
+  const loggedIn = !!sessionToken;
+  const guestBar = document.getElementById('sb-guest-bar');
+  const logoutBtn = document.getElementById('sb-logout-btn');
+  if (guestBar) guestBar.style.display = loggedIn ? 'none' : '';
+  if (logoutBtn) logoutBtn.style.display = loggedIn ? '' : 'none';
+}
+
+let sessionToken = null, currentUser = null, currentRole = null;
+let myLogs = [];
+
+// ══════════════════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════════════════
+function toast(msg, dur = 2200) {
   const el = document.getElementById('toast');
   el.textContent = msg;
   el.classList.add('show');
-  clearTimeout(el._t);
-  el._t = setTimeout(() => el.classList.remove('show'), dur);
+  setTimeout(() => el.classList.remove('show'), dur);
 }
+
+function toggleSwitch(id, lblId) {
+  const t = document.getElementById(id);
+  const l = document.getElementById(lblId);
+  const on = t.classList.toggle('on');
+  l.textContent = on ? 'Aktif' : 'Nonaktif';
+  l.className = 'tog-lbl' + (on ? ' on' : '');
+}
+
+function getToggle(id) { return document.getElementById(id).classList.contains('on'); }
 
 function copyText(id) {
   const el = document.getElementById(id);
@@ -815,69 +984,162 @@ function timeSince(ts) {
   return Math.floor(d/86400000) + 'd ago';
 }
 
+// ══════════════════════════════════════════════════════════
+//  AUTH
+// ══════════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0 && tab==='login') || (i===1 && tab==='register')));
+  document.getElementById('tab-login').style.display  = tab==='login'    ? '' : 'none';
+  document.getElementById('tab-register').style.display = tab==='register' ? '' : 'none';
+}
+
+async function doLogin() {
+  const u = document.getElementById('l-user').value.trim();
+  const p = document.getElementById('l-pass').value;
+  const msg = document.getElementById('l-msg');
+  msg.className = 'form-msg'; msg.textContent = 'Logging in...';
+  try {
+    const r = await fetch('/api/login', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const d = await r.json();
+    if (!r.ok) { msg.className='form-msg error'; msg.textContent = d.error; return; }
+    applyLogin(d);
+  } catch(e) { msg.className='form-msg error'; msg.textContent='Koneksi gagal.'; }
+}
+
+async function doRegister() {
+  const u = document.getElementById('r-user').value.trim();
+  const p = document.getElementById('r-pass').value;
+  const msg = document.getElementById('r-msg');
+  msg.className='form-msg'; msg.textContent='Mendaftarkan...';
+  try {
+    const r = await fetch('/api/register', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const d = await r.json();
+    if (!r.ok) { msg.className='form-msg error'; msg.textContent = d.error; return; }
+    msg.className='form-msg ok'; msg.textContent='Berhasil! Silakan login.';
+    setTimeout(() => switchTab('login'), 1200);
+  } catch(e) { msg.className='form-msg error'; msg.textContent='Koneksi gagal.'; }
+}
+
+function applyLogin(d) {
+  sessionToken = d.token;
+  currentUser  = d.username;
+  currentRole  = d.role;
+  myLogs       = d.logs || [];
+
+  // Simpan ke localStorage (permanen)
+  localStorage.setItem('rbx_token',    d.token);
+  localStorage.setItem('rbx_user',     d.username);
+  localStorage.setItem('rbx_role',     d.role);
+
+  // Update sidebar
+  document.getElementById('sb-avatar').textContent = d.username[0].toUpperCase();
+  document.getElementById('sb-uname').textContent  = d.username;
+  const roleEl = document.getElementById('sb-role');
+  roleEl.textContent = d.role.toUpperCase();
+  roleEl.className = 'sb-role ' + d.role;
+
+  // Admin-only items
+  if (d.role === 'admin') {
+    document.getElementById('nav-dashboard').classList.remove('hidden');
+  }
+
+  // Settings info
+  document.getElementById('s-username').textContent = d.username;
+  document.getElementById('s-role').textContent = d.role;
+
+  // Stats
+  document.getElementById('my-count').textContent = d.count || 0;
+
+  // Hide modal
+  hideLoginModal();
+  updateGuestBar();
+
+  // Render history
+  renderHistory();
+}
+
+function doLogout() {
+  sessionToken = null; currentUser = null; currentRole = null; myLogs = [];
+  localStorage.removeItem('rbx_token');
+  localStorage.removeItem('rbx_user');
+  localStorage.removeItem('rbx_role');
+  showLoginModal();
+  updateGuestBar();
+  document.getElementById('nav-dashboard').classList.add('hidden');
+  // Reset forms
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  document.getElementById('l-msg').textContent='';
+}
+
+// ─── AUTO-RESTORE SESSION ─────────────────────────────
+(async function restoreSession() {
+  const token    = localStorage.getItem('rbx_token');
+  const username = localStorage.getItem('rbx_user');
+  const role     = localStorage.getItem('rbx_role');
+  if (!token || !username || !role) { updateGuestBar(); return; }
+
+  try {
+    const r = await fetch(`/api/user-stats?username=${encodeURIComponent(username)}`);
+    if (!r.ok) { localStorage.clear(); return; }
+    const sd = await r.json();
+    applyLogin({ token, username, role, count: sd.count || 0, logs: sd.logs || [] });
+  } catch(e) { localStorage.clear(); updateGuestBar(); }
+  updateGuestBar();
+})();
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { hideLoginModal(); return; }
+  if (e.key === 'Enter') {
+    const overlay = document.getElementById('login-overlay');
+    if (overlay.classList.contains('show')) {
+      const activeTab = document.querySelector('.auth-tab.active').textContent;
+      if (activeTab === 'LOGIN') doLogin();
+      else doRegister();
+    }
+  }
+});
+
+// ══════════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════════
 const titles = {
   obfuscate:'OBFUSCATE', history:'HISTORY',
-  deobfuscate:'DEOBFUSCATE', settings:'SETTINGS'
+  deobfuscate:'DEOBFUSCATE', dashboard:'DASHBOARD', settings:'SETTINGS'
 };
 
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
-  const btn = document.querySelector(`.sb-item[onclick*="${name}"]`);
-  if (btn) btn.classList.add('active');
+  document.querySelector(`.sb-item[onclick*="${name}"]`).classList.add('active');
   document.getElementById('page-title').textContent = titles[name] || name.toUpperCase();
+
+  if (name === 'dashboard' && currentRole === 'admin') loadDashboard();
   if (name === 'history') renderHistory();
 }
 
-function selectEngine(eng) {
-  activeEngine = eng;
-  document.querySelectorAll('.eng-tab').forEach(t => t.classList.remove('active'));
-  document.querySelector(`[data-engine="${eng}"]`).classList.add('active');
-  document.getElementById('panel-prometheus').style.display = eng === 'prometheus' ? '' : 'none';
-  document.getElementById('panel-custom').style.display    = eng === 'custom' ? '' : 'none';
-
-  const statEl  = document.getElementById('stat-engine');
-  const statSub = document.getElementById('stat-engine-sub');
-  const topbar  = document.getElementById('topbar-engine');
-  const runBtn  = document.getElementById('run-btn');
-
-  if (eng === 'custom') {
-    statEl.textContent  = 'ENCLUARZ';
-    statEl.style.color  = 'var(--enc)';
-    statSub.textContent = 'multi-layer XOR';
-    topbar.textContent  = 'ENCLUARZ';
-    topbar.style.color  = 'var(--enc)';
-    topbar.style.borderColor = 'var(--enc-border)';
-    topbar.style.background  = 'var(--enc-glow)';
-    runBtn.classList.add('enc');
-    document.getElementById('run-txt').textContent = '✦ OBFUSCATE';
-  } else {
-    statEl.textContent  = 'PROMETHEUS';
-    statEl.style.color  = '';
-    statSub.textContent = 'lua 5.1 / LuaU';
-    topbar.textContent  = 'PROMETHEUS';
-    topbar.style.color  = '';
-    topbar.style.borderColor = '';
-    topbar.style.background  = '';
-    runBtn.classList.remove('enc');
-    document.getElementById('run-txt').textContent = '⚡ OBFUSCATE';
-  }
-}
-
+// ══════════════════════════════════════════════════════════
+//  OBFUSCATE
+// ══════════════════════════════════════════════════════════
 function clearInput() { document.getElementById('input-script').value = ''; }
-
 async function pasteInput() {
   try {
     const text = await navigator.clipboard.readText();
     document.getElementById('input-script').value = text;
     toast('Pasted!');
-  } catch(e) { toast('Gunakan Ctrl+V'); }
+  } catch(e) { toast('Tidak bisa paste — gunakan Ctrl+V'); }
 }
 
 function copyLoader() {
-  const val = document.getElementById('output-script').value
-           || document.getElementById('result-loader').textContent;
+  const val = document.getElementById('output-script').value || document.getElementById('result-loader').textContent;
   if (!val || val.startsWith('--')) return;
   navigator.clipboard.writeText(val).then(() => {
     toast('✓ Loadstring copied!');
@@ -890,15 +1152,43 @@ function copyLoader() {
   });
 }
 
+// ══════════════════════════════════════════════════════════
+//  ENGINE SELECTOR
+// ══════════════════════════════════════════════════════════
+let activeEngine = 'prometheus';
+
+function selectEngine(eng) {
+  activeEngine = eng;
+  document.getElementById('tab-prometheus').classList.toggle('active', eng === 'prometheus');
+  document.getElementById('tab-custom').classList.toggle('active', eng === 'custom');
+  document.getElementById('panel-prometheus').style.display = eng === 'prometheus' ? '' : 'none';
+  document.getElementById('panel-custom').style.display    = eng === 'custom'     ? '' : 'none';
+
+  const statEl    = document.getElementById('stat-engine');
+  const statSub   = document.getElementById('stat-engine-sub');
+  if (eng === 'custom') {
+    statEl.textContent  = 'CUSTOM';
+    statEl.style.color  = '#a855f7';
+    statSub.textContent = 'multi-layer XOR';
+  } else {
+    statEl.textContent  = 'PROMETHEUS';
+    statEl.style.color  = '';
+    statSub.textContent = 'lua 5.1 / LuaU';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+//  OBFUSCATE
+// ══════════════════════════════════════════════════════════
 async function doObfuscate() {
+  if (!sessionToken) { showLoginModal('login'); toast('⚠ Login dulu untuk obfuscate!'); return; }
   const script = document.getElementById('input-script').value.trim();
-  if (!script) { toast('⚠ Script kosong!'); return; }
+  if (!script) { toast('Script kosong!'); return; }
 
   const btn = document.getElementById('run-btn');
   const sp  = document.getElementById('spinner');
   const txt = document.getElementById('run-txt');
-  btn.disabled = true;
-  sp.classList.add('show');
+  btn.disabled = true; sp.classList.add('show');
   txt.textContent = activeEngine === 'custom' ? 'LAYERING...' : 'PROCESSING...';
 
   const rb = document.getElementById('result-box');
@@ -912,29 +1202,29 @@ async function doObfuscate() {
       endpoint = '/api/obfuscate-custom';
       body = {
         script,
-        useGithubBackup: true,
-        variableRename:  document.getElementById('ce-vr-mode').value === '1',
-        stringEncode:    document.getElementById('ce-se-mode').value === '1',
-        junkCode:        document.getElementById('ce-jk-mode').value === '1',
-        controlFlow:     document.getElementById('ce-cf-mode').value === '1',
-        antiTamper:      true,
-        layers:          parseInt(document.getElementById('ce-layers').value),
-        junkDensity:     parseFloat(document.getElementById('ce-density').value),
+        useGithubBackup:  getToggle('ce-gh'),
+        variableRename:   getToggle('ce-vr'),
+        stringEncode:     getToggle('ce-se'),
+        junkCode:         getToggle('ce-jk'),
+        controlFlow:      getToggle('ce-cf'),
+        antiTamper:       getToggle('ce-at'),
+        layers:           parseInt(document.getElementById('ce-layers').value),
+        junkDensity:      parseFloat(document.getElementById('ce-density').value),
       };
     } else {
       endpoint = '/api/obfuscate';
       body = {
         script,
-        preset:          document.getElementById('opt-preset').value,
-        useAntiTamper:   true,
-        useGithubBackup: true,
-        engine:          'prometheus',
+        preset:           document.getElementById('opt-preset').value,
+        useAntiTamper:    getToggle('tog-at'),
+        useGithubBackup:  getToggle('tog-gh'),
+        engine:           'prometheus',
       };
     }
 
     const r = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer __free__' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken },
       body: JSON.stringify(body)
     });
 
@@ -950,51 +1240,43 @@ async function doObfuscate() {
     } else {
       document.getElementById('output-script').value = d.loader;
       rb.className = 'result-box show success';
-      const lbl = activeEngine === 'custom'
-        ? '✦ ENCLUARZ — LOADSTRING SIAP'
-        : '🔥 PROMETHEUS — LOADSTRING SIAP';
-      document.getElementById('result-label').textContent = lbl;
+      const engineLabel = activeEngine === 'custom' ? '🍵 MATCHA — LOADSTRING SIAP' : 'LOADSTRING SIAP';
+      document.getElementById('result-label').textContent = engineLabel;
       document.getElementById('result-loader').textContent = d.loader;
       document.getElementById('copy-hint').textContent = 'Klik untuk copy';
       document.getElementById('copy-hint').className = 'result-copy-hint';
       document.getElementById('result-warn').textContent = d.warning || '';
 
-      sessionCount++;
-      document.getElementById('my-count').textContent = sessionCount;
-      document.getElementById('sb-total').textContent = sessionCount;
+      const cnt = document.getElementById('my-count');
+      cnt.textContent = parseInt(cnt.textContent || '0') + 1;
 
       myLogs.unshift({ id: d.scriptId, ts: Date.now(), loader: d.loader, engine: activeEngine });
       if (myLogs.length > 50) myLogs.pop();
 
-      toast(activeEngine === 'custom' ? '✦ Encluarz selesai!' : '✓ Berhasil diobfus!');
+      toast(activeEngine === 'custom' ? '🍵 Matcha berhasil!' : '✓ Berhasil diobfus!');
     }
   } catch(e) {
     rb.className = 'result-box show error';
-    document.getElementById('result-label').textContent = 'ERROR';
     document.getElementById('result-loader').textContent = 'Koneksi error: ' + e.message;
-    document.getElementById('copy-hint').textContent = '';
     toast('❌ Koneksi gagal');
   } finally {
-    btn.disabled = false;
-    sp.classList.remove('show');
-    txt.textContent = activeEngine === 'custom' ? '✦ OBFUSCATE' : '⚡ OBFUSCATE';
+    btn.disabled = false; sp.classList.remove('show'); txt.textContent = '⚡ OBFUSCATE';
   }
 }
 
+// ══════════════════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════════════════
 function renderHistory() {
   const tbody = document.getElementById('history-body');
   if (!myLogs || myLogs.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada history obfuscation</div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📭</div>Belum ada history obfuscation</div></td></tr>';
     return;
   }
   tbody.innerHTML = myLogs.map(l => `
     <tr>
       <td><span class="log-id">${l.id || '—'}</span></td>
       <td><div class="log-loader-code">${l.loader || '—'}</div></td>
-      <td><span style="font-size:8px;padding:2px 8px;border-radius:4px;${l.engine==='custom'
-        ? 'background:var(--enc-glow);color:var(--enc);border:1px solid var(--enc-border)'
-        : 'background:var(--accent-glow);color:var(--accent2);border:1px solid var(--accent-border)'
-      }">${l.engine === 'custom' ? 'ENCLUARZ' : 'PROMETHEUS'}</span></td>
       <td><span class="log-time">${timeSince(l.ts)}</span></td>
       <td>
         <button class="log-copy-btn" onclick="navigator.clipboard.writeText(${JSON.stringify(l.loader||'')}).then(()=>toast('✓ Copied!'))">
@@ -1005,7 +1287,11 @@ function renderHistory() {
   `).join('');
 }
 
+// ══════════════════════════════════════════════════════════
+//  DEOBFUSCATE
+// ══════════════════════════════════════════════════════════
 async function doDeobfuscate() {
+  if (!sessionToken) { showLoginModal('login'); toast('⚠ Login dulu!'); return; }
   const script = document.getElementById('deobf-input').value.trim();
   if (!script) { toast('Script kosong!'); return; }
 
@@ -1021,7 +1307,7 @@ async function doDeobfuscate() {
   try {
     const r = await fetch('/api/deobfuscate', {
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer __free__'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+sessionToken},
       body: JSON.stringify({ script })
     });
     const d = await r.json();
@@ -1037,10 +1323,40 @@ async function doDeobfuscate() {
     }
   } catch(e) {
     rb.className = 'result-box show error';
-    rb.innerHTML = '<div class="result-error-msg">Koneksi error</div>';
+    rb.innerHTML = `<div class="result-error-msg">Koneksi error</div>`;
   } finally {
     btn.disabled = false; sp.classList.remove('show'); txt.textContent = '🔍 DEOBFUSCATE';
   }
+}
+
+// ══════════════════════════════════════════════════════════
+//  DASHBOARD
+// ══════════════════════════════════════════════════════════
+async function loadDashboard() {
+  try {
+    const r = await fetch('/api/dashboard');
+    const d = await r.json();
+    document.getElementById('d-total').textContent  = d.totalScripts;
+    document.getElementById('d-cache').textContent  = d.cacheActive;
+    document.getElementById('d-skid').textContent   = d.skidAlerts;
+    document.getElementById('d-status').textContent = d.serverStatus;
+
+    document.getElementById('d-logs').innerHTML = (d.recentLogs || []).slice(0,10).map(l => `
+      <div class="dash-log">
+        <span class="dash-log-id">${l.id}</span>
+        <span class="dash-log-user">${l.username}</span>
+        <span class="dash-log-time">${timeSince(l.ts)}</span>
+      </div>
+    `).join('') || '<div style="color:var(--hint);font-size:10px;padding:10px 0">Belum ada log</div>';
+
+    document.getElementById('d-users').innerHTML = (d.users || []).map(u => `
+      <tr>
+        <td>${u.username}</td>
+        <td><span class="role-chip ${u.role}">${u.role.toUpperCase()}</span></td>
+        <td>${u.count}</td>
+      </tr>
+    `).join('');
+  } catch(e) { toast('Gagal load dashboard'); }
 }
 </script>
 </body>

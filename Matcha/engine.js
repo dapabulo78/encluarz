@@ -11,9 +11,8 @@ let _loaded = false;
 function loadMatcha() {
     if (_loaded) return;
 
-    // 1. luaparse — diinstall di backend/node_modules
-    const path = require('path');
-    global.luaparse = require(path.resolve(__dirname, '../backend/node_modules/luaparse'));
+    // 1. luaparse — npm package, assign ke global
+    global.luaparse = require('luaparse');
 
     // 2. Load codegen.js  → sets window.LuaCodeGen
     require('./codegen');
