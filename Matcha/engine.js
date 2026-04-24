@@ -1,5 +1,10 @@
 'use strict';
 
+// Shim window untuk Node.js (matcha adalah browser code)
+if (typeof window === 'undefined') {
+    global.window = global;
+}
+
 /**
  * Matcha Obfuscator Engine Adapter
  * 
