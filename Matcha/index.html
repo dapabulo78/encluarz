@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matcha Obfuscator — Lua/Luau Obfuscator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.18/lib/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.18/theme/material-darker.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <a href="index.html" class="nav-brand">
+            <img src="contents/logo.png" alt="MatchaObf">
+            MatchaObf
+        </a>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link active">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                Obfuscator
+            </a>
+            <a href="scripts.html" class="nav-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Scripts
+            </a>
+            <a href="tutorials.html" class="nav-link">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                Tutorials
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <img src="contents/logo.png" alt="Matcha" class="logo-img">
+                <h1>Matcha <span class="highlight">Obfuscator</span></h1>
+            </div>
+            <p class="subtitle">Advanced Lua / Luau / Roblox Lua obfuscation engine</p>
+        </header>
+
+        <!-- Input Section (Tabbed) -->
+        <div class="card input-card">
+            <div class="input-tabs">
+                <button class="input-tab active" id="tabUpload" data-tab="upload">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    Upload File
+                </button>
+                <button class="input-tab" id="tabEditor" data-tab="editor">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                    Paste Code
+                </button>
+            </div>
+
+            <!-- Tab: Upload File -->
+            <div class="tab-pane active" id="paneUpload">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-content" id="uploadContent">
+                        <div class="upload-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                        </div>
+                        <p class="upload-text">Drag &amp; drop your <strong>.lua</strong> file here</p>
+                        <p class="upload-hint">or click to browse</p>
+                    </div>
+                    <div class="file-info" id="fileInfo" style="display:none;">
+                        <div class="file-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                                <line x1="16" y1="13" x2="8" y2="13"/>
+                                <line x1="16" y1="17" x2="8" y2="17"/>
+                                <polyline points="10 9 9 9 8 9"/>
+                            </svg>
+                        </div>
+                        <div class="file-details">
+                            <span class="file-name" id="fileName"></span>
+                            <span class="file-size" id="fileSize"></span>
+                        </div>
+                        <button class="file-remove" id="fileRemove" title="Remove file">&times;</button>
+                    </div>
+                    <input type="file" id="fileInput" accept=".lua,.luau,.txt" hidden>
+                </div>
+            </div>
+
+            <!-- Tab: Paste Code -->
+            <div class="tab-pane" id="paneEditor">
+                <div class="editor-wrapper">
+                    <textarea id="inputEditor"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Options Panel -->
+        <div class="card">
+            <h2 class="card-title">Obfuscation Options</h2>
+            <div class="options-grid">
+                <label class="option">
+                    <input type="checkbox" id="optRenameVars" checked>
+                    <span class="option-toggle"></span>
+                    <div class="option-info">
+                        <span class="option-label">Variable Renaming</span>
+                        <span class="option-desc">Replaces local variable names with randomized identifiers</span>
+                    </div>
+                </label>
+                <label class="option">
+                    <input type="checkbox" id="optEncryptStrings" checked>
+                    <span class="option-toggle"></span>
+                    <div class="option-info">
+                        <span class="option-label">String Encryption</span>
+                        <span class="option-desc">XOR-encrypts all string literals with runtime decryption</span>
+                    </div>
+                </label>
+                <label class="option">
+                    <input type="checkbox" id="optFlattenFlow" checked>
+                    <span class="option-toggle"></span>
+                    <div class="option-info">
+                        <span class="option-label">Control Flow Flattening</span>
+                        <span class="option-desc">Converts code flow into state-machine patterns</span>
+                    </div>
+                </label>
+                <label class="option">
+                    <input type="checkbox" id="optDeadCode" checked>
+                    <span class="option-toggle"></span>
+                    <div class="option-info">
+                        <span class="option-label">Dead Code Insertion</span>
+                        <span class="option-desc">Injects non-functional code blocks to confuse analysis</span>
+                    </div>
+                </label>
+                <label class="option">
+                    <input type="checkbox" id="optEncodeConsts" checked>
+                    <span class="option-toggle"></span>
+                    <div class="option-info">
+                        <span class="option-label">Constant Encoding</span>
+                        <span class="option-desc">Replaces numeric literals with arithmetic expressions</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Obfuscate Button -->
+        <button class="btn-obfuscate" id="btnObfuscate" disabled>
+            <span class="btn-text" id="btnText">Obfuscate</span>
+            <span class="btn-spinner" id="btnSpinner" style="display:none;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                </svg>
+            </span>
+        </button>
+
+        <!-- Progress Bar -->
+        <div class="progress-container" id="progressContainer" style="display:none;">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">Initializing...</p>
+        </div>
+
+        <!-- Error Display -->
+        <div class="error-container" id="errorContainer" style="display:none;">
+            <div class="error-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                <span>Error</span>
+            </div>
+            <p class="error-message" id="errorMessage"></p>
+        </div>
+
+        <!-- Results Area -->
+        <div class="results-container" id="resultsContainer" style="display:none;">
+            <div class="card">
+                <h2 class="card-title">Obfuscation Complete</h2>
+                <div class="stats-grid">
+                    <div class="stat">
+                        <span class="stat-label">Original Size</span>
+                        <span class="stat-value" id="statOriginal">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Obfuscated Size</span>
+                        <span class="stat-value" id="statObfuscated">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Size Ratio</span>
+                        <span class="stat-value" id="statRatio">—</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Transforms</span>
+                        <span class="stat-value" id="statTransforms">—</span>
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-download" id="btnDownload">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        Download File
+                    </button>
+                    <button class="btn-copy" id="btnCopy">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        <span id="copyText">Copy Output</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Output Editor -->
+            <div class="card output-card">
+                <h2 class="card-title">Output</h2>
+                <div class="editor-wrapper">
+                    <textarea id="outputEditor"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Matcha Obfuscator &mdash; Client-side Lua obfuscation. No data leaves your browser.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.18/lib/codemirror.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.18/mode/lua/lua.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luaparse@0.3.1/luaparse.min.js"></script>
+    <script src="codegen.js"></script>
+    <script src="transforms.js"></script>
+    <script src="obfuscator.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
