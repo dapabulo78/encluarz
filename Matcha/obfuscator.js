@@ -403,8 +403,8 @@
     }
 
     // Add header comment
-    output = '-- Obfuscated with Encluarz\n' +
-             '-- encluarz \n' + output;
+    output = '-- Obfuscated with encluarz\n' +
+             '-- encluarz\n' + output;
 
     onProgress('Complete!', 100);
 
