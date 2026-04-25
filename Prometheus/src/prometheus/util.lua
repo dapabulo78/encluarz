@@ -20,29 +20,31 @@ local function unlookupify(tb)
 	return tb2;
 end
 
+-- FIX: Lua pattern "." does NOT match null bytes (\0).
+-- Iterating byte-by-byte ensures ALL bytes (including \0) are escaped.
+-- Without this, encrypted strings containing null bytes were silently
+-- truncated in the Lua source, which broke GitHub URL decryption at runtime.
 local function escape(str)
-	return str:gsub(".", function(char)
-		local byte = string.byte(char)
-		if byte >= 32 and byte <= 126 and char ~= "\\" and char ~= "\"" and char ~= "\'" then
-			return char
+	local result = {}
+	for i = 1, #str do
+		local byte = string.byte(str, i)
+		if byte >= 32 and byte <= 126 and byte ~= 92 and byte ~= 34 and byte ~= 39 then
+			result[i] = string.char(byte)
+		elseif byte == 92 then
+			result[i] = "\\\\"
+		elseif byte == 10 then
+			result[i] = "\\n"
+		elseif byte == 13 then
+			result[i] = "\\r"
+		elseif byte == 34 then
+			result[i] = "\\\""
+		elseif byte == 39 then
+			result[i] = "\\'"
+		else
+			result[i] = string.format("\\%03d", byte)
 		end
-		if(char == "\\") then
-			return "\\\\";
-		end
-		if(char == "\n") then
-			return "\\n";
-		end
-		if(char == "\r") then
-			return "\\r";
-		end
-		if(char == "\"") then
-			return "\\\"";
-		end
-		if(char == "\'") then
-			return "\\\'";
-		end
-		return string.format("\\%03d", byte);
-	end)
+	end
+	return table.concat(result)
 end
 
 local function chararray(str)

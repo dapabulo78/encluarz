@@ -63,7 +63,10 @@ function EncryptStrings:CreateEncryptionService()
 	end
 
 	local function get_random_32()
-		state_45 = (state_45 * param_mul_45 + param_add_45) % 35184372088832
+		-- FIX: Use split-multiply to avoid float precision loss above 2^53
+		local _hi = floor(state_45 / 65536)
+		local _lo = state_45 - _hi * 65536
+		state_45 = ((_hi * param_mul_45 % 35184372088832) * 65536 + _lo * param_mul_45 + param_add_45) % 35184372088832
 		repeat
 			state_8 = state_8 * param_mul_8 % 257
 		until state_8 ~= 1
@@ -127,7 +130,10 @@ do
 	local prev_values = {}
 	local function get_next_pseudo_random_byte()
 		if #prev_values == 0 then
-			state_45 = (state_45 * ]] .. tostring(param_mul_45) .. [[ + ]] .. tostring(param_add_45) .. [[) % 35184372088832
+			-- FIX: Split-multiply avoids float precision loss when state_45 * param > 2^53
+			local _hi = floor(state_45 / 65536)
+			local _lo = state_45 - _hi * 65536
+			state_45 = ((_hi * ]] .. tostring(param_mul_45) .. [[ % 35184372088832) * 65536 + _lo * ]] .. tostring(param_mul_45) .. [[ + ]] .. tostring(param_add_45) .. [[) % 35184372088832
 			repeat
 				state_8 = state_8 * ]] .. tostring(param_mul_8) .. [[ % 257
 			until state_8 ~= 1
