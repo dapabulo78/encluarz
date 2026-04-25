@@ -462,7 +462,14 @@
         var escaped = '';
         for (var c = 0; c < enc.length; c++) {
           var code = enc.charCodeAt(c);
-          escaped += '\\' + code;
+          // Properly escape quotes and backslashes
+          if (code === 34) {  // double quote
+            escaped += '\\"';
+          } else if (code === 92) {  // backslash
+            escaped += '\\\\';
+          } else {
+            escaped += '\\' + code;
+          }
         }
         return '"' + escaped + '"';
       }).join(',') +
