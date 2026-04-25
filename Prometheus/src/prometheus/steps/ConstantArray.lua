@@ -538,16 +538,24 @@ end
 
 function ConstantArray:encode(str)
 	if self.Encoding == "base64" then
-		return ((str:gsub('.', function(x)
-			local r,b='',x:byte()
-			for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
-			return r;
-		end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-			if (#x < 6) then return '' end
-			local c=0
-			for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
-			return self.base64chars:sub(c+1,c+1)
-		end)..({ '', '==', '=' })[#str%3+1]);
+		-- FIX: original gsub('.') skips null bytes (\0), corrupting encrypted strings.
+		-- Replaced with byte-based iteration so ALL bytes are processed correctly.
+		local bits = {}
+		for i = 1, #str do
+			local b = string.byte(str, i)
+			for j = 8, 1, -1 do
+				bits[#bits+1] = (b % 2^j - b % 2^(j-1) > 0) and '1' or '0'
+			end
+		end
+		local bitstr = table.concat(bits) .. '0000'
+		local b64 = {}
+		for x in bitstr:gmatch('%d%d%d%d%d%d') do
+			if #x < 6 then break end
+			local c = 0
+			for i = 1, 6 do c = c + (x:sub(i,i) == '1' and 2^(6-i) or 0) end
+			b64[#b64+1] = self.base64chars:sub(c+1, c+1)
+		end
+		return (table.concat(b64) .. ({ '', '==', '=' })[#str%3+1]);
 	elseif self.Encoding == "base85" then
 		local result = {};
 		local len = #str;
@@ -574,16 +582,20 @@ function ConstantArray:encode(str)
 		return table.concat(result);
 	elseif self.Encoding == "mixed" then
 		if math.random() < 0.5 then
-			local encoded = ((str:gsub('.', function(x)
-				local r,b='',x:byte()
-				for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
-				return r;
-			end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-				if (#x < 6) then return '' end
-				local c=0
-				for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
-				return self.base64chars:sub(c+1,c+1)
-			end)..({ '', '==', '=' })[#str%3+1]);
+			-- FIX: byte-based base64 encode to handle null bytes in encrypted strings
+			local _bits = {}
+			for _i = 1, #str do
+				local _b = string.byte(str, _i)
+				for _j = 8, 1, -1 do _bits[#_bits+1] = (_b % 2^_j - _b % 2^(_j-1) > 0) and '1' or '0' end
+			end
+			local _bstr = table.concat(_bits) .. '0000'
+			local _b64 = {}
+			for _x in _bstr:gmatch('%d%d%d%d%d%d') do
+				local _c = 0
+				for _i2 = 1, 6 do _c = _c + (_x:sub(_i2,_i2) == '1' and 2^(6-_i2) or 0) end
+				_b64[#_b64+1] = self.base64chars:sub(_c+1, _c+1)
+			end
+			local encoded = (table.concat(_b64) .. ({ '', '==', '=' })[#str%3+1]);
 			return prefix_0 .. encoded;
 		else
 			local result = {};
