@@ -437,17 +437,14 @@ app.get('/api/dashboard', (req, res) => {
 // ============================================================
 
 app.post('/api/obfuscate', obfuscateRateLimit, async (req, res) => {
-    const authHeader = req.headers['authorization'] || '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    const session = validateSession(token);
-    if (!session) {
-        return res.status(401).json({ error: 'Unauthorized. Silakan login terlebih dahulu.' });
-    }
-
     let { script, preset, useAntiTamper, useGithubBackup } = req.body;
     if (!script) return res.status(400).json({ error: "Script Kosong!" });
 
-    const username = session.username;
+    // Auth optional — track username if logged in, otherwise anonymous
+    const authHeader = req.headers['authorization'] || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const session = token ? validateSession(token) : null;
+    const username = session ? session.username : 'anonymous';
     const presetKey = PRESETS[preset] ? preset : 'Medium';
     const configContent = PRESETS[presetKey];
     const shouldInjectAntiTamper = useAntiTamper !== false;
@@ -526,12 +523,10 @@ app.post('/api/obfuscate', obfuscateRateLimit, async (req, res) => {
 // ============================================================
 
 app.post('/api/obfuscate-custom', obfuscateRateLimit, async (req, res) => {
+    // Auth optional — no login required
     const authHeader = req.headers['authorization'] || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    const session = validateSession(token);
-    if (!session) {
-        return res.status(401).json({ error: 'Unauthorized. Silakan login terlebih dahulu.' });
-    }
+    const session = token ? validateSession(token) : null;
 
     const {
         script,

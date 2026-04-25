@@ -4,520 +4,150 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Encluarz — Lua Obfuscator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #060a12;
-    --bg2: #0b1120;
-    --accent: #3b82f6;
-    --accent2: #06b6d4;
-    --glow: rgba(59,130,246,0.35);
-    --muted: #4b5563;
-    --text: #e2e8f0;
-    --mono: 'Courier New', monospace;
-  }
-
-  * { margin:0; padding:0; box-sizing:border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* GRID BACKGROUND */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* HEADER */
-  header {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px 48px;
-    background: rgba(6,10,18,0.85);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(59,130,246,0.12);
-  }
-
-  .logo {
-    font-family: var(--mono);
-    font-size: 18px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    color: var(--text);
-  }
-  .logo span { color: var(--accent); }
-
-  .header-nav { display: flex; gap: 16px; align-items: center; }
-
-  .btn-outline {
-    padding: 8px 20px;
-    border: 1px solid rgba(59,130,246,0.4);
-    background: transparent;
-    color: var(--accent);
-    font-size: 12px;
-    letter-spacing: 2px;
-    font-family: var(--mono);
-    cursor: pointer;
-    transition: all .2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-outline:hover {
-    background: rgba(59,130,246,0.1);
-    border-color: var(--accent);
-    box-shadow: 0 0 12px var(--glow);
-  }
-
-  .btn-primary {
-    padding: 8px 24px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 12px;
-    letter-spacing: 2px;
-    font-family: var(--mono);
-    border: none;
-    cursor: pointer;
-    transition: all .2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-primary:hover {
-    background: #2563eb;
-    box-shadow: 0 4px 20px var(--glow);
-    transform: translateY(-1px);
-  }
-
-  /* HERO */
-  .hero {
-    position: relative;
-    z-index: 1;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 100px 24px 48px;
-  }
-
-  .hero-badge {
-    display: inline-block;
-    padding: 4px 16px;
-    border: 1px solid rgba(6,182,212,0.4);
-    background: rgba(6,182,212,0.06);
-    color: var(--accent2);
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 3px;
-    margin-bottom: 28px;
-  }
-
-  .hero-title {
-    font-size: clamp(48px, 8vw, 96px);
-    font-family: var(--mono);
-    font-weight: 900;
-    letter-spacing: -2px;
-    line-height: 1;
-    margin-bottom: 12px;
-  }
-  .hero-title .hl { color: var(--accent); text-shadow: 0 0 40px var(--glow); }
-
-  .hero-sub {
-    font-size: clamp(12px, 2vw, 16px);
-    color: var(--muted);
-    letter-spacing: 4px;
-    font-family: var(--mono);
-    margin-bottom: 40px;
-  }
-
-  .hero-desc {
-    max-width: 560px;
-    font-size: 15px;
-    color: #94a3b8;
-    line-height: 1.7;
-    margin-bottom: 48px;
-  }
-
-  .hero-cta { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
-
-  .btn-hero {
-    padding: 14px 36px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 13px;
-    letter-spacing: 3px;
-    font-family: var(--mono);
-    border: none;
-    cursor: pointer;
-    transition: all .25s;
-    text-decoration: none;
-    display: inline-block;
-    position: relative;
-    overflow: hidden;
-  }
-  .btn-hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
-  }
-  .btn-hero:hover {
-    background: #2563eb;
-    box-shadow: 0 8px 32px var(--glow);
-    transform: translateY(-2px);
-  }
-
-  .btn-hero-ghost {
-    padding: 14px 36px;
-    border: 1px solid rgba(59,130,246,0.35);
-    background: transparent;
-    color: var(--text);
-    font-size: 13px;
-    letter-spacing: 3px;
-    font-family: var(--mono);
-    cursor: pointer;
-    transition: all .25s;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .btn-hero-ghost:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(59,130,246,0.06);
-  }
-
-  /* GLOW ORBS */
-  .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    pointer-events: none;
-    opacity: 0.18;
-  }
-  .orb-1 { width:500px; height:500px; background:var(--accent); top:-150px; left:-100px; }
-  .orb-2 { width:400px; height:400px; background:var(--accent2); bottom:-100px; right:-80px; }
-
-  /* STATS BAR */
-  .stats-bar {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    gap: 0;
-    justify-content: center;
-    flex-wrap: wrap;
-    border-top: 1px solid rgba(59,130,246,0.1);
-    border-bottom: 1px solid rgba(59,130,246,0.1);
-    background: rgba(11,17,32,0.8);
-  }
-  .stat-item {
-    flex: 1;
-    min-width: 180px;
-    padding: 32px 24px;
-    text-align: center;
-    border-right: 1px solid rgba(59,130,246,0.1);
-  }
-  .stat-item:last-child { border-right: none; }
-  .stat-num {
-    font-family: var(--mono);
-    font-size: 36px;
-    font-weight: 900;
-    color: var(--accent);
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .stat-label {
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--muted);
-    font-family: var(--mono);
-  }
-
-  /* FEATURES */
-  .section {
-    position: relative;
-    z-index: 1;
-    padding: 80px 24px;
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
-  .section-title {
-    text-align: center;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 4px;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
-  .section-h {
-    text-align: center;
-    font-size: 32px;
-    font-weight: 700;
-    margin-bottom: 56px;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1px;
-    background: rgba(59,130,246,0.08);
-    border: 1px solid rgba(59,130,246,0.08);
-  }
-
-  .feat-card {
-    padding: 32px;
-    background: var(--bg2);
-    transition: background .2s;
-    position: relative;
-    overflow: hidden;
-  }
-  .feat-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-    opacity: 0;
-    transition: opacity .3s;
-  }
-  .feat-card:hover::before { opacity: 1; }
-  .feat-card:hover { background: rgba(11,17,32,0.95); }
-
-  .feat-icon {
-    font-size: 28px;
-    margin-bottom: 16px;
-    display: block;
-  }
-  .feat-name {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 2px;
-    color: var(--accent);
-    margin-bottom: 8px;
-  }
-  .feat-desc { font-size: 14px; color: #94a3b8; line-height: 1.6; }
-
-  /* ENGINE COMPARE */
-  .engines {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    margin-top: 0;
-  }
-  @media(max-width:640px) { .engines { grid-template-columns: 1fr; } }
-
-  .engine-card {
-    border: 1px solid rgba(59,130,246,0.15);
-    padding: 28px;
-    background: var(--bg2);
-    position: relative;
-  }
-  .engine-badge {
-    display: inline-block;
-    padding: 2px 10px;
-    background: rgba(59,130,246,0.15);
-    color: var(--accent);
-    font-family: var(--mono);
-    font-size: 9px;
-    letter-spacing: 2px;
-    margin-bottom: 12px;
-  }
-  .engine-name { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
-  .engine-desc { font-size: 13px; color: #94a3b8; margin-bottom: 20px; line-height: 1.6; }
-  .engine-features { list-style: none; display: flex; flex-direction: column; gap: 8px; }
-  .engine-features li {
-    font-size: 12px;
-    color: #64748b;
-    font-family: var(--mono);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .engine-features li::before { content: '▸'; color: var(--accent); }
-
-  /* CODE DEMO */
-  .code-demo {
-    background: #0d1117;
-    border: 1px solid rgba(59,130,246,0.12);
-    padding: 24px;
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.7;
-    overflow-x: auto;
-    position: relative;
-  }
-  .code-demo::before {
-    content: 'OUTPUT PREVIEW';
-    position: absolute;
-    top: 12px; right: 16px;
-    font-size: 9px;
-    letter-spacing: 2px;
-    color: var(--muted);
-  }
-  .kw { color: #f97316; }
-  .str { color: #22c55e; }
-  .num { color: #a78bfa; }
-  .cm { color: #4b5563; }
-  .fn { color: #38bdf8; }
-
-  /* FOOTER */
-  footer {
-    position: relative;
-    z-index: 1;
-    border-top: 1px solid rgba(59,130,246,0.1);
-    padding: 32px 48px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 16px;
-  }
-  .footer-logo { font-family: var(--mono); font-size: 14px; color: var(--muted); }
-  .footer-logo span { color: var(--accent); }
-  .footer-copy { font-size: 11px; color: var(--muted); font-family: var(--mono); }
-
-  /* SCAN LINE EFFECT */
-  @keyframes scanline {
-    0% { transform: translateY(-100%); }
-    100% { transform: translateY(100vh); }
-  }
-  .scanline {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(transparent, rgba(59,130,246,0.08), transparent);
-    animation: scanline 8s linear infinite;
-    pointer-events: none;
-    z-index: 50;
-  }
-
-  /* Typing cursor blink */
-  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
-  .cursor { animation: blink 1s step-end infinite; }
+:root {
+  --bg:       #060810;
+  --bg2:      #090c18;
+  --surface:  #0d1220;
+  --surface2: #111728;
+  --border:   rgba(99,140,255,0.1);
+  --border2:  rgba(99,140,255,0.18);
+  --accent:   #4f7eff;
+  --accent2:  #7ba4ff;
+  --gold:     #e8b84b;
+  --glow:     rgba(79,126,255,0.22);
+  --muted:    #3d4f72;
+  --text:     #d4ddf5;
+  --text2:    #8a9bbf;
+  --mono:     'IBM Plex Mono', monospace;
+  --display:  'Syne', sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--display);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(79,126,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(79,126,255,0.025) 1px,transparent 1px);background-size:64px 64px;pointer-events:none;z-index:0}
+header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 56px;height:64px;background:rgba(6,8,16,0.75);backdrop-filter:blur(20px) saturate(1.4);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:18px;font-weight:800;letter-spacing:0.5px;color:var(--text);text-decoration:none}
+.logo em{font-style:normal;color:var(--accent)}
+.header-nav{display:flex;align-items:center;gap:8px}
+.nav-link{padding:7px 18px;color:var(--text2);font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-decoration:none;transition:color .2s}
+.nav-link:hover{color:var(--text)}
+.btn-launch{padding:9px 22px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-decoration:none;border-radius:6px;transition:all .2s;box-shadow:0 4px 20px rgba(79,126,255,0.3)}
+.btn-launch:hover{background:var(--accent2);box-shadow:0 6px 28px rgba(79,126,255,0.45);transform:translateY(-1px)}
+.hero{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 60px}
+.hero-glow{position:absolute;width:700px;height:700px;background:radial-gradient(circle,rgba(79,126,255,0.1) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-55%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border:1px solid rgba(232,184,75,0.25);background:rgba(232,184,75,0.05);color:var(--gold);font-family:var(--mono);font-size:10px;letter-spacing:2.5px;border-radius:4px;margin-bottom:36px}
+.hero-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero-title{font-family:var(--display);font-size:clamp(52px,9vw,108px);font-weight:800;line-height:1;letter-spacing:-3px;margin-bottom:8px;color:var(--text)}
+.hero-title .al{color:var(--accent);text-shadow:0 0 60px rgba(79,126,255,0.5)}
+.hero-sub{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--muted);margin-bottom:32px}
+.hero-desc{max-width:520px;font-size:16px;font-weight:400;color:var(--text2);line-height:1.75;margin-bottom:48px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn-primary{padding:14px 36px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:12px;letter-spacing:2px;text-decoration:none;border-radius:8px;transition:all .25s;box-shadow:0 6px 30px rgba(79,126,255,0.35);display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{background:#638cff;box-shadow:0 10px 40px rgba(79,126,255,0.5);transform:translateY(-2px)}
+.btn-ghost{padding:14px 36px;border:1px solid var(--border2);color:var(--text2);font-family:var(--mono);font-size:12px;letter-spacing:2px;text-decoration:none;border-radius:8px;transition:all .25s;display:inline-block}
+.btn-ghost:hover{border-color:rgba(79,126,255,0.4);color:var(--accent2);background:rgba(79,126,255,0.05)}
+.stats-row{position:relative;z-index:1;display:flex;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(9,12,24,0.6);backdrop-filter:blur(10px)}
+.stat-cell{flex:1;padding:28px 20px;text-align:center;border-right:1px solid var(--border)}
+.stat-cell:last-child{border-right:none}
+.stat-n{font-family:var(--display);font-size:38px;font-weight:800;color:var(--accent);line-height:1;margin-bottom:6px;letter-spacing:-1px}
+.stat-l{font-family:var(--mono);font-size:9px;letter-spacing:2.5px;color:var(--muted)}
+.section{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:96px 32px}
+.section-tag{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--accent);margin-bottom:12px}
+.section-title{font-family:var(--display);font-size:clamp(28px,4vw,42px);font-weight:700;letter-spacing:-1px;margin-bottom:56px;color:var(--text)}
+.section-title span{color:var(--accent)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border)}
+@media(max-width:768px){.features-grid{grid-template-columns:1fr}.engines-grid{grid-template-columns:1fr}header{padding:0 24px}}
+.feat{padding:36px 32px;background:var(--bg2);transition:background .2s;position:relative;overflow:hidden}
+.feat:hover{background:var(--surface)}
+.feat::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);transform:scaleX(0);transition:transform .3s ease;transform-origin:left}
+.feat:hover::after{transform:scaleX(1)}
+.feat-num{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;margin-bottom:16px}
+.feat-name{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);margin-bottom:10px;letter-spacing:-0.3px}
+.feat-desc{font-size:13px;color:var(--text2);line-height:1.7}
+.engines-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.engine-card{border:1px solid var(--border);border-radius:12px;padding:32px;background:var(--surface);position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s}
+.engine-card:hover{border-color:var(--border2);box-shadow:0 0 40px rgba(79,126,255,0.06)}
+.engine-card.featured{border-color:rgba(79,126,255,0.25)}
+.engine-card.featured::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(79,126,255,0.05),transparent 60%);pointer-events:none}
+.engine-tag{display:inline-block;padding:3px 10px;background:rgba(79,126,255,0.1);border:1px solid rgba(79,126,255,0.2);color:var(--accent2);font-family:var(--mono);font-size:9px;letter-spacing:2px;border-radius:4px;margin-bottom:16px}
+.engine-name{font-family:var(--display);font-size:24px;font-weight:700;letter-spacing:-0.5px;color:var(--text);margin-bottom:10px}
+.engine-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:24px}
+.engine-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.engine-list li{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;color:var(--text2)}
+.engine-list li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.code-block{margin-top:24px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--surface);border-bottom:1px solid var(--border)}
+.code-dots{display:flex;gap:6px}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.code-dot:nth-child(1){background:#ef4444}
+.code-dot:nth-child(2){background:#f59e0b}
+.code-dot:nth-child(3){background:#22c55e}
+.code-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:var(--muted)}
+.code-body{padding:20px;font-family:var(--mono);font-size:12px;line-height:1.8;overflow-x:auto;background:var(--bg)}
+.kw{color:#7ba4ff}.str{color:#4ade80}.num{color:#c084fc}.cm{color:var(--muted)}.fn{color:#93c5fd}
+.cta-section{position:relative;z-index:1;text-align:center;padding:80px 24px;border-top:1px solid var(--border)}
+.cta-title{font-family:var(--display);font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:-1.5px;margin-bottom:16px;color:var(--text)}
+.cta-sub{font-size:15px;color:var(--text2);margin-bottom:40px}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:24px 56px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-logo{font-family:var(--display);font-size:14px;font-weight:700;color:var(--muted)}
+.footer-logo em{font-style:normal;color:var(--accent)}
+.footer-meta{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1.5px}
 </style>
 </head>
 <body>
-
-<div class="scanline"></div>
-
-<!-- HEADER -->
 <header>
-  <div class="logo">ENCLU<span>A</span>RZ</div>
+  <a href="/" class="logo">ENCLU<em>A</em>RZ</a>
   <nav class="header-nav">
-    <a href="#features" class="btn-outline">FITUR</a>
-    <a href="#engines" class="btn-outline">ENGINE</a>
-    <a href="/index.html" class="btn-primary">LAUNCH APP</a>
+    <a href="#features" class="nav-link">FITUR</a>
+    <a href="#engines" class="nav-link">ENGINE</a>
+    <a href="/index.html" class="btn-launch">BUKA APP →</a>
   </nav>
 </header>
 
-<!-- HERO -->
 <section class="hero">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-
-  <div class="hero-badge">⚡ ROBLOX-COMPATIBLE · LUA OBFUSCATOR</div>
-
-  <h1 class="hero-title">
-    ENCLU<span class="hl">A</span>RZ<span class="cursor">_</span>
-  </h1>
+  <div class="hero-glow"></div>
+  <div class="hero-eyebrow"><span class="hero-dot"></span>ROBLOX-COMPATIBLE · LUA OBFUSCATOR</div>
+  <h1 class="hero-title">ENCLU<span class="al">A</span>RZ</h1>
   <div class="hero-sub">PROMETHEUS ENGINE · CUSTOM ENGINE · LUAU SUPPORT</div>
-
-  <p class="hero-desc">
-    Obfuscator Lua/Luau profesional untuk script Roblox. Dua engine powerfull,
-    multiple layer proteksi, anti-tamper otomatis, dan loadstring generation instan.
-  </p>
-
-  <div class="hero-cta">
-    <a href="/index.html" class="btn-hero">🚀 BUKA APP</a>
-    <a href="#features" class="btn-hero-ghost">PELAJARI FITUR</a>
+  <p class="hero-desc">Obfuscator Lua/Luau profesional untuk script Roblox. Dua engine powerful, multi-layer proteksi, anti-tamper otomatis, dan loadstring generation instan.</p>
+  <div class="hero-actions">
+    <a href="/index.html" class="btn-primary">⚡ BUKA APP</a>
+    <a href="#features" class="btn-ghost">PELAJARI FITUR</a>
   </div>
 </section>
 
-<!-- STATS -->
-<div class="stats-bar">
-  <div class="stat-item">
-    <div class="stat-num">2</div>
-    <div class="stat-label">ENGINE TERSEDIA</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num">5x</div>
-    <div class="stat-label">MAX LAYER WRAP</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num">XOR</div>
-    <div class="stat-label">ENKRIPSI STRING</div>
-  </div>
-  <div class="stat-item">
-    <div class="stat-num">100%</div>
-    <div class="stat-label">LUAU COMPATIBLE</div>
-  </div>
+<div class="stats-row">
+  <div class="stat-cell"><div class="stat-n">2</div><div class="stat-l">ENGINE TERSEDIA</div></div>
+  <div class="stat-cell"><div class="stat-n">5×</div><div class="stat-l">MAX LAYER WRAP</div></div>
+  <div class="stat-cell"><div class="stat-n">XOR</div><div class="stat-l">ENKRIPSI STRING</div></div>
+  <div class="stat-cell"><div class="stat-n">100%</div><div class="stat-l">LUAU COMPATIBLE</div></div>
 </div>
 
-<!-- FEATURES -->
 <div id="features" class="section">
-  <div class="section-title">// CAPABILITIES</div>
-  <h2 class="section-h">Fitur Proteksi</h2>
-
+  <div class="section-tag">// CAPABILITIES</div>
+  <h2 class="section-title">Fitur <span>Proteksi</span></h2>
   <div class="features-grid">
-    <div class="feat-card">
-      <span class="feat-icon">🔀</span>
-      <div class="feat-name">VARIABLE RENAME</div>
-      <p class="feat-desc">Scope-aware renaming untuk semua local variable. Roblox globals (game, workspace, dll) otomatis terlindungi.</p>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🔐</span>
-      <div class="feat-name">XOR STRING ENCODE</div>
-      <p class="feat-desc">Semua string literal dienkripsi dengan XOR key acak dan di-decode saat runtime. Anti-grep otomatis.</p>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🧱</span>
-      <div class="feat-name">JUNK CODE INJECTION</div>
-      <p class="feat-desc">Dead code insertion dengan density yang bisa dikonfigurasi (0–100%). Bikin decompiler bingung.</p>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🔄</span>
-      <div class="feat-name">CONTROL FLOW FLATTEN</div>
-      <p class="feat-desc">Logic flow dibungkus state machine. Alur eksekusi jadi tidak bisa dibaca tanpa menjalankan script.</p>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">🛡️</span>
-      <div class="feat-name">ANTI-TAMPER</div>
-      <p class="feat-desc">Cek integritas environment Roblox saat script berjalan. Script mati otomatis jika di-decompile paksa.</p>
-    </div>
-    <div class="feat-card">
-      <span class="feat-icon">📦</span>
-      <div class="feat-name">XOR LAYER WRAP</div>
-      <p class="feat-desc">Bytecode wrap hingga 5 layer. Setiap layer menambah kompleksitas reverse engineering secara eksponensial.</p>
-    </div>
+    <div class="feat"><div class="feat-num">01</div><div class="feat-name">Variable Rename</div><p class="feat-desc">Scope-aware renaming untuk semua local variable. Roblox globals otomatis terlindungi.</p></div>
+    <div class="feat"><div class="feat-num">02</div><div class="feat-name">XOR String Encode</div><p class="feat-desc">Semua string literal dienkripsi dengan XOR key acak, di-decode saat runtime. Anti-grep otomatis.</p></div>
+    <div class="feat"><div class="feat-num">03</div><div class="feat-name">Junk Code Injection</div><p class="feat-desc">Dead code insertion dengan density yang bisa dikonfigurasi. Bikin decompiler bingung.</p></div>
+    <div class="feat"><div class="feat-num">04</div><div class="feat-name">Control Flow Flatten</div><p class="feat-desc">Logic flow dibungkus state machine. Alur eksekusi tidak bisa dibaca tanpa menjalankan script.</p></div>
+    <div class="feat"><div class="feat-num">05</div><div class="feat-name">Anti-Tamper</div><p class="feat-desc">Cek integritas environment Roblox saat runtime. Script mati otomatis jika di-decompile paksa.</p></div>
+    <div class="feat"><div class="feat-num">06</div><div class="feat-name">XOR Layer Wrap</div><p class="feat-desc">Bytecode wrap hingga 5 layer. Tiap layer menambah kompleksitas reverse engineering secara eksponensial.</p></div>
   </div>
 </div>
 
-<!-- ENGINES -->
 <div id="engines" class="section" style="padding-top:0">
-  <div class="section-title">// ENGINES</div>
-  <h2 class="section-h">Pilih Engine</h2>
-
-  <div class="engines">
-    <div class="engine-card">
-      <div class="engine-badge">ENGINE 1</div>
+  <div class="section-tag">// ENGINES</div>
+  <h2 class="section-title">Pilih <span>Engine</span></h2>
+  <div class="engines-grid">
+    <div class="engine-card featured">
+      <div class="engine-tag">ENGINE 01</div>
       <div class="engine-name">Prometheus</div>
-      <div class="engine-desc">Engine berbasis parser Lua AST full-featured. Tersedia 3 preset siap pakai untuk berbagai kebutuhan.</div>
-      <ul class="engine-features">
+      <p class="engine-desc">Engine berbasis parser Lua AST full-featured. Tersedia 3 preset siap pakai untuk berbagai kebutuhan proteksi.</p>
+      <ul class="engine-list">
         <li>Preset Weak / Medium / Strong</li>
         <li>Encrypt Strings + Constant Array</li>
         <li>Wrap in Function + Split Strings</li>
@@ -525,11 +155,11 @@
         <li>LuaU compatible output</li>
       </ul>
     </div>
-    <div class="engine-card" style="border-color:rgba(6,182,212,0.2)">
-      <div class="engine-badge" style="background:rgba(6,182,212,0.1);color:var(--accent2)">ENGINE 2</div>
+    <div class="engine-card">
+      <div class="engine-tag" style="border-color:rgba(232,184,75,0.25);background:rgba(232,184,75,0.05);color:var(--gold)">ENGINE 02</div>
       <div class="engine-name">Custom Engine</div>
-      <div class="engine-desc">Engine buatan sendiri dengan kontrol granular penuh. Aktifkan/matikan tiap fitur secara individual.</div>
-      <ul class="engine-features">
+      <p class="engine-desc">Engine buatan sendiri dengan kontrol granular penuh. Aktifkan/matikan tiap fitur secara individual.</p>
+      <ul class="engine-list">
         <li>Variable Rename (scope-aware)</li>
         <li>XOR String Encoding</li>
         <li>Junk Code (configurable density)</li>
@@ -539,15 +169,17 @@
       </ul>
     </div>
   </div>
-
-  <!-- Code demo -->
-  <div style="margin-top:32px">
-    <div class="code-demo">
+  <div class="code-block">
+    <div class="code-header">
+      <div class="code-dots"><div class="code-dot"></div><div class="code-dot"></div><div class="code-dot"></div></div>
+      <div class="code-label">OUTPUT PREVIEW — CUSTOM ENGINE · 3 LAYERS</div>
+    </div>
+    <div class="code-body">
 <span class="cm">-- Input script kamu</span>
 <span class="kw">local</span> <span class="fn">msg</span> = <span class="str">"Hello, Roblox!"</span>
 <span class="kw">print</span>(msg)
 
-<span class="cm">-- ↓ setelah Encluarz (Custom Engine, 3 layers)</span>
+<span class="cm">-- After Encluarz (Custom Engine, 3 layers)</span>
 <span class="kw">local</span> _<span class="fn">K</span>=<span class="num">0x4F</span>;<span class="kw">local</span> _<span class="fn">S</span>={<span class="num">0x27</span>,<span class="num">0x2A</span>,<span class="num">0x23</span>,<span class="num">0x23</span>,<span class="num">0x20</span>,<span class="num">0x66</span>}
 <span class="kw">local</span> <span class="fn">_d</span>=<span class="kw">function</span>(<span class="fn">t</span>) <span class="kw">local</span> <span class="fn">r</span>=<span class="str">""</span>;<span class="kw">for</span> _,v <span class="kw">in</span> <span class="fn">ipairs</span>(t) <span class="kw">do</span>
   r=r..<span class="fn">string.char</span>(<span class="fn">bit32.bxor</span>(v,_K)) <span class="kw">end</span>;<span class="kw">return</span> r <span class="kw">end</span>
@@ -556,19 +188,15 @@
   </div>
 </div>
 
-<!-- CTA BOTTOM -->
-<div style="position:relative;z-index:1;text-align:center;padding:64px 24px;background:linear-gradient(to bottom, transparent, rgba(59,130,246,0.04), transparent)">
-  <div class="section-title">// GET STARTED</div>
-  <h2 style="font-size:28px;margin-bottom:12px;font-weight:700">Siap proteksi script kamu?</h2>
-  <p style="color:#64748b;margin-bottom:32px;font-size:14px">Gratis, no install, langsung jalan di browser.</p>
-  <a href="/index.html" class="btn-hero">🚀 BUKA ENCLUARZ SEKARANG</a>
+<div class="cta-section">
+  <p class="cta-title">Siap proteksi script kamu?</p>
+  <p class="cta-sub">Gratis · Tanpa install · Langsung jalan di browser.</p>
+  <a href="/index.html" class="btn-primary" style="display:inline-flex">⚡ BUKA ENCLUARZ SEKARANG</a>
 </div>
 
-<!-- FOOTER -->
 <footer>
-  <div class="footer-logo">ENCLU<span>A</span>RZ</div>
-  <div class="footer-copy">PROMETHEUS ENGINE · CUSTOM ENGINE · LUAU SUPPORT</div>
+  <div class="footer-logo">ENCLU<em>A</em>RZ</div>
+  <div class="footer-meta">PROMETHEUS ENGINE · CUSTOM ENGINE · LUAU SUPPORT</div>
 </footer>
-
 </body>
 </html>

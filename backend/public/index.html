@@ -3,34 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RBX.LOADER — Prometheus</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Encluarz — Lua Obfuscator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0b0d;
-  --bg2:#0e1012;
-  --surface:#13161a;
-  --surface2:#181c21;
-  --border:#1e2430;
-  --border2:#28303e;
-  --text:#e8edf5;
-  --muted:#5a6478;
-  --hint:#3a4256;
-  --accent:#3b82f6;
-  --accent2:#60a5fa;
-  --accent-glow:rgba(59,130,246,0.15);
+  --bg:#060810;
+  --bg2:#090c18;
+  --surface:#0d1220;
+  --surface2:#111728;
+  --border:#1a2340;
+  --border2:#243060;
+  --text:#d4ddf5;
+  --muted:#3d4f72;
+  --hint:#2a3550;
+  --accent:#4f7eff;
+  --accent2:#7ba4ff;
+  --accent-glow:rgba(79,126,255,0.14);
   --green:#10b981;
-  --green-glow:rgba(16,185,129,0.12);
-  --amber:#f59e0b;
+  --green-glow:rgba(16,185,129,0.1);
+  --amber:#e8b84b;
   --red:#ef4444;
-  --mono:'JetBrains Mono',monospace;
-  --sans:'Space Grotesk',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'Syne',sans-serif;
   --radius:10px;
   --sidebar:220px;
 }
 html,body{height:100%;overflow:hidden}
-body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13px}
+body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13px;letter-spacing:0.01em}
 
 /* ── SCROLLBAR ────────────────── */
 ::-webkit-scrollbar{width:4px;height:4px}
@@ -61,8 +61,8 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
 
 .login-brand{text-align:center;margin-bottom:36px}
 .login-brand-name{
-  font-family:var(--sans);font-size:28px;font-weight:700;
-  letter-spacing:-0.5px;color:var(--text);
+  font-family:var(--sans);font-size:28px;font-weight:800;
+  letter-spacing:-1px;color:var(--text);
 }
 .login-brand-name span{color:var(--accent)}
 .login-brand-sub{font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:6px;font-family:var(--mono)}
@@ -100,9 +100,9 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
   font-family:var(--mono);font-size:11px;letter-spacing:2px;
   padding:13px;border-radius:8px;cursor:pointer;margin-top:6px;
   transition:background .2s,transform .1s,box-shadow .2s;
-  box-shadow:0 4px 14px rgba(59,130,246,0.3);
+  box-shadow:0 4px 14px rgba(79,126,255,0.28);
 }
-.login-btn:hover{background:#2563eb;box-shadow:0 6px 20px rgba(59,130,246,0.4)}
+.login-btn:hover{background:#638cff;box-shadow:0 6px 20px rgba(79,126,255,0.4)}
 .login-btn:active{transform:scale(.98)}
 .login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
@@ -116,7 +116,7 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
 /* ── SIDEBAR ─────────────────────── */
 .sidebar{
   width:var(--sidebar);flex-shrink:0;
-  background:var(--surface);
+  background:var(--bg2);
   border-right:1px solid var(--border);
   display:flex;flex-direction:column;
   height:100vh;
@@ -124,8 +124,8 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
 }
 .sb-logo{padding:22px 20px 18px;border-bottom:1px solid var(--border)}
 .sb-logo-main{
-  font-family:var(--sans);font-size:16px;font-weight:700;
-  color:var(--text);letter-spacing:-0.3px;
+  font-family:var(--sans);font-size:16px;font-weight:800;
+  color:var(--text);letter-spacing:-0.5px;
 }
 .sb-logo-main span{color:var(--accent)}
 .sb-logo-sub{font-size:8px;color:var(--muted);letter-spacing:3px;margin-top:4px;font-family:var(--mono)}
@@ -547,7 +547,7 @@ body{font-family:var(--mono);background:var(--bg);color:var(--text);font-size:13
     </nav>
     <div class="sb-bottom">
       <div id="sb-guest-bar" style="display:none;margin-bottom:8px">
-        <button class="sb-logout" style="color:#3b82f6;border-color:rgba(59,130,246,.3);background:rgba(59,130,246,.06);width:100%;margin-bottom:4px" onclick="showLoginModal()">LOGIN / DAFTAR</button>
+
         <div style="font-size:9px;color:var(--hint);text-align:center;letter-spacing:1px">Kamu sedang sebagai GUEST</div>
       </div>
       <button class="sb-logout" id="sb-logout-btn" onclick="doLogout()">LOGOUT</button>
@@ -1083,7 +1083,7 @@ function doLogout() {
   const token    = localStorage.getItem('rbx_token');
   const username = localStorage.getItem('rbx_user');
   const role     = localStorage.getItem('rbx_role');
-  if (!token || !username || !role) { updateGuestBar(); return; }
+  if (!token || !username || !role) { updateGuestBar(); return; } // login optional
 
   try {
     const r = await fetch(`/api/user-stats?username=${encodeURIComponent(username)}`);
@@ -1181,7 +1181,6 @@ function selectEngine(eng) {
 //  OBFUSCATE
 // ══════════════════════════════════════════════════════════
 async function doObfuscate() {
-  if (!sessionToken) { showLoginModal('login'); toast('⚠ Login dulu untuk obfuscate!'); return; }
   const script = document.getElementById('input-script').value.trim();
   if (!script) { toast('Script kosong!'); return; }
 
@@ -1224,7 +1223,7 @@ async function doObfuscate() {
 
     const r = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
 
@@ -1291,7 +1290,6 @@ function renderHistory() {
 //  DEOBFUSCATE
 // ══════════════════════════════════════════════════════════
 async function doDeobfuscate() {
-  if (!sessionToken) { showLoginModal('login'); toast('⚠ Login dulu!'); return; }
   const script = document.getElementById('deobf-input').value.trim();
   if (!script) { toast('Script kosong!'); return; }
 
@@ -1307,7 +1305,7 @@ async function doDeobfuscate() {
   try {
     const r = await fetch('/api/deobfuscate', {
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+sessionToken},
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ script })
     });
     const d = await r.json();
